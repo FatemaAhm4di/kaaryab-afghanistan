@@ -1,20 +1,9 @@
-import {Inter} from 'next/font/google';
+import {ReactNode} from 'react';
 
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap'
-});
-
-export default function RootLayout({
+export default function LocaleLayout({
   children
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>
-        {children}
-      </body>
-    </html>
-  );
+  return <>{children}</>;
 }
