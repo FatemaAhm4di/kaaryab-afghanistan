@@ -1,14 +1,10 @@
 import './globals.css';
-import {Inter} from 'next/font/google';
+import { Inter } from 'next/font/google';
 import Navbar from '@/components/layout/Navbar';
 
-const inter = Inter({ subsets: ['latin'], display: 'swap' });
+const inter = Inter({ subsets: ['latin'] });
 
-export default function RootLayout({
-  children
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={inter.className}>
