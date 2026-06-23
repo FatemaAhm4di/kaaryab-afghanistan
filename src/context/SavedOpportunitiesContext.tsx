@@ -1,6 +1,11 @@
 'use client';
 
-import {createContext, useContext, useEffect, useState} from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState
+} from 'react';
 
 type SavedContextType = {
   savedIds: string[];
@@ -10,18 +15,26 @@ type SavedContextType = {
 
 const SavedContext = createContext<SavedContextType | null>(null);
 
+function getInitialSaved(): string[] {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const stored = localStorage.getItem('saved-opportunities');
+    if (!stored) return [];
+
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export function SavedOpportunitiesProvider({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const [savedIds, setSavedIds] = useState<string[]>(() => {
-    if (typeof window === 'undefined') return [];
-
-    const stored = localStorage.getItem('saved-opportunities');
-
-    return stored ? JSON.parse(stored) : [];
-  });
+  const [savedIds, setSavedIds] = useState<string[]>(getInitialSaved);
 
   useEffect(() => {
     localStorage.setItem(
@@ -33,22 +46,16 @@ export function SavedOpportunitiesProvider({
   const toggleSave = (id: string) => {
     setSavedIds((prev) =>
       prev.includes(id)
-        ? prev.filter((item) => item !== id)
+        ? prev.filter((x) => x !== id)
         : [...prev, id]
     );
   };
 
-  const isSaved = (id: string) => {
-    return savedIds.includes(id);
-  };
+  const isSaved = (id: string) => savedIds.includes(id);
 
   return (
     <SavedContext.Provider
-      value={{
-        savedIds,
-        toggleSave,
-        isSaved
-      }}
+      value={{ savedIds, toggleSave, isSaved }}
     >
       {children}
     </SavedContext.Provider>
@@ -56,13 +63,11 @@ export function SavedOpportunitiesProvider({
 }
 
 export function useSavedOpportunities() {
-  const context = useContext(SavedContext);
+  const ctx = useContext(SavedContext);
 
-  if (!context) {
-    throw new Error(
-      'useSavedOpportunities must be used inside SavedOpportunitiesProvider'
-    );
+  if (!ctx) {
+    throw new Error('Must be inside provider');
   }
 
-  return context;
+  return ctx;
 }
