@@ -20,6 +20,7 @@ export default function OpportunityCard({ opportunity }: Props) {
   const { toggleSave, isSaved } = useSavedOpportunities();
 
   const saved = isSaved(opportunity.id);
+  
 
   return (
     <article className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
@@ -35,16 +36,16 @@ export default function OpportunityCard({ opportunity }: Props) {
           </h3>
         </div>
 
-        {/* wrapper fix for hydration */}
         <button
-          type="button"
-          onClick={() => toggleSave(opportunity.id)}
-          className="p-2 rounded-xl hover:bg-gray-100"
-        >
-          <span className={saved ? 'text-cyan-600' : 'text-gray-500'}>
-            <Bookmark size={20} />
-          </span>
-        </button>
+  type="button"
+  onClick={() => toggleSave(opportunity.id)}
+  className="p-2 rounded-xl hover:bg-gray-100 text-gray-500"
+>
+  <Bookmark
+    size={20}
+    className={saved ? 'text-cyan-700 fill-current' : ''}
+  />
+</button>
       </div>
 
       <div className="mt-5 text-sm text-gray-600">
