@@ -3,8 +3,8 @@
 import {
   createContext,
   useContext,
-  useEffect,
-  useState
+  useState,
+  useEffect
 } from 'react';
 
 type SavedContextType = {
@@ -15,15 +15,11 @@ type SavedContextType = {
 
 const SavedContext = createContext<SavedContextType | null>(null);
 
-function getInitialSaved(): string[] {
+function loadSaved(): string[] {
   if (typeof window === 'undefined') return [];
-
   try {
-    const stored = localStorage.getItem('saved-opportunities');
-    if (!stored) return [];
-
-    const parsed = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed : [];
+    const data = localStorage.getItem('saved-opportunities');
+    return data ? JSON.parse(data) : [];
   } catch {
     return [];
   }
@@ -34,13 +30,10 @@ export function SavedOpportunitiesProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [savedIds, setSavedIds] = useState<string[]>(getInitialSaved);
+  const [savedIds, setSavedIds] = useState<string[]>(loadSaved);
 
   useEffect(() => {
-    localStorage.setItem(
-      'saved-opportunities',
-      JSON.stringify(savedIds)
-    );
+    localStorage.setItem('saved-opportunities', JSON.stringify(savedIds));
   }, [savedIds]);
 
   const toggleSave = (id: string) => {
@@ -54,9 +47,7 @@ export function SavedOpportunitiesProvider({
   const isSaved = (id: string) => savedIds.includes(id);
 
   return (
-    <SavedContext.Provider
-      value={{ savedIds, toggleSave, isSaved }}
-    >
+    <SavedContext.Provider value={{ savedIds, toggleSave, isSaved }}>
       {children}
     </SavedContext.Provider>
   );
@@ -64,10 +55,6 @@ export function SavedOpportunitiesProvider({
 
 export function useSavedOpportunities() {
   const ctx = useContext(SavedContext);
-
-  if (!ctx) {
-    throw new Error('Must be inside provider');
-  }
-
+  if (!ctx) throw new Error('Must be inside provider');
   return ctx;
 }

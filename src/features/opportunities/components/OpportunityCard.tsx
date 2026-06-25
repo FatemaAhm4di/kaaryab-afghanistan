@@ -8,6 +8,8 @@ import {
   Clock,
   MapPin
 } from 'lucide-react';
+import {usePathname} from 'next/navigation';
+import {useEffect, useState} from 'react';
 
 import type { Opportunity } from '@/features/opportunities/types';
 import { useSavedOpportunities } from '@/context/SavedOpportunitiesContext';
@@ -18,9 +20,13 @@ type Props = {
 
 export default function OpportunityCard({ opportunity }: Props) {
   const { toggleSave, isSaved } = useSavedOpportunities();
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'fa';
 
-  const saved = isSaved(opportunity.id);
-  
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const saved = mounted ? isSaved(opportunity.id) : false;
 
   return (
     <article className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
@@ -37,15 +43,15 @@ export default function OpportunityCard({ opportunity }: Props) {
         </div>
 
         <button
-  type="button"
-  onClick={() => toggleSave(opportunity.id)}
-  className="p-2 rounded-xl hover:bg-gray-100 text-gray-500"
->
-  <Bookmark
-    size={20}
-    className={saved ? 'text-cyan-700 fill-current' : ''}
-  />
-</button>
+          type="button"
+          onClick={() => toggleSave(opportunity.id)}
+          className="p-2 rounded-xl hover:bg-gray-100"
+        >
+          <Bookmark
+            size={20}
+            className={saved ? 'text-cyan-700 fill-current' : 'text-gray-500'}
+          />
+        </button>
       </div>
 
       <div className="mt-5 text-sm text-gray-600">
@@ -71,7 +77,7 @@ export default function OpportunityCard({ opportunity }: Props) {
         </span>
 
         <Link
-          href={`/opportunities/${opportunity.id}`}
+          href={`/${locale}/opportunities/${opportunity.id}`}
           className="flex items-center gap-2 font-semibold text-cyan-700"
         >
           View

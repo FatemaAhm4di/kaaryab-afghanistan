@@ -28,9 +28,6 @@ export default function OpportunitiesPage() {
     });
   }, [search, category]);
 
-  const hasFilters =
-    search.trim() !== '' || category !== 'All';
-
   return (
     <main className="min-h-screen bg-[var(--color-background)] py-10">
       <section className="container-custom">
@@ -44,7 +41,7 @@ export default function OpportunitiesPage() {
           </p>
         </div>
 
-        <div className="mb-6 grid gap-4 md:grid-cols-2">
+        <div className="mb-8 grid gap-4 md:grid-cols-2">
           <input
             type="text"
             placeholder="Search opportunities..."
@@ -64,25 +61,6 @@ export default function OpportunitiesPage() {
             <option value="Scholarship">Scholarship</option>
             <option value="Remote">Remote</option>
           </select>
-        </div>
-
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <p className="text-sm text-gray-600">
-            {filteredOpportunities.length} opportunities found
-          </p>
-
-          {hasFilters && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearch('');
-                setCategory('All');
-              }}
-              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold transition hover:bg-gray-50"
-            >
-              Clear Filters
-            </button>
-          )}
         </div>
 
         {filteredOpportunities.length === 0 ? (

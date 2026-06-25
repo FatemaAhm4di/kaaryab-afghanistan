@@ -3,17 +3,17 @@ import {routing} from './routing';
 
 type Locale = (typeof routing.locales)[number];
 
-export default getRequestConfig(async (params) => {
-  const locale = params.locale as Locale;
+export default getRequestConfig(async ({requestLocale}) => {
+  let locale = await requestLocale;
 
-  if (!routing.locales.includes(locale)) {
-    throw new Error('Invalid locale');
+  if (!locale || !(routing.locales as readonly string[]).includes(locale)) {
+    locale = routing.defaultLocale;
   }
 
   const messages = (await import(`../messages/${locale}.json`)).default;
 
   return {
-    locale,
+    locale: locale as Locale,
     messages
   };
 });
