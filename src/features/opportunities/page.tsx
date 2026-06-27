@@ -1,6 +1,9 @@
 'use client';
 
 import {useMemo, useState} from 'react';
+import Link from 'next/link';
+import {Plus} from 'lucide-react';
+import {usePathname} from 'next/navigation';
 
 import OpportunityCard from './components/OpportunityCard';
 import {opportunities} from './data';
@@ -8,22 +11,15 @@ import {opportunities} from './data';
 export default function OpportunitiesPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'fa';
 
   const filteredOpportunities = useMemo(() => {
     return opportunities.filter((opportunity) => {
       const matchesSearch =
-        opportunity.title
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        opportunity.organization
-          .toLowerCase()
-          .includes(search.toLowerCase());
-
-      const matchesCategory =
-        category === 'All'
-          ? true
-          : opportunity.category === category;
-
+        opportunity.title.toLowerCase().includes(search.toLowerCase()) ||
+        opportunity.organization.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory = category === 'All' ? true : opportunity.category === category;
       return matchesSearch && matchesCategory;
     });
   }, [search, category]);
@@ -31,14 +27,24 @@ export default function OpportunitiesPage() {
   return (
     <main className="min-h-screen bg-[var(--color-background)] py-10">
       <section className="container-custom">
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold text-[var(--color-primary-dark)] md:text-4xl">
-            Opportunities
-          </h1>
 
-          <p className="mt-2 text-gray-600">
-            Discover jobs, internships, scholarships and remote work opportunities.
-          </p>
+        <div className="mb-10 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-[var(--color-primary-dark)] md:text-4xl">
+              Opportunities
+            </h1>
+            <p className="mt-2 text-gray-600">
+              Discover jobs, internships, scholarships and remote work opportunities.
+            </p>
+          </div>
+          <Link
+            href={`/${locale}/add-opportunity`}
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#09637e] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            <Plus size={16} />
+            <span className="hidden sm:inline">Add opportunity</span>
+            <span className="sm:hidden">Add</span>
+          </Link>
         </div>
 
         <div className="mb-8 grid gap-4 md:grid-cols-2">
@@ -47,13 +53,12 @@ export default function OpportunitiesPage() {
             placeholder="Search opportunities..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none transition focus:border-cyan-600"
+            className="rounded-xl border border-[#d1eef2] bg-white px-4 py-3 outline-none transition focus:border-[#09637e]"
           />
-
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none transition focus:border-cyan-600"
+            className="rounded-xl border border-[#d1eef2] bg-white px-4 py-3 outline-none transition focus:border-[#09637e]"
           >
             <option value="All">All Categories</option>
             <option value="Job">Job</option>
@@ -64,25 +69,18 @@ export default function OpportunitiesPage() {
         </div>
 
         {filteredOpportunities.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-300 p-10 text-center">
-            <h2 className="text-xl font-semibold">
-              No opportunities found
-            </h2>
-
-            <p className="mt-2 text-gray-600">
-              Try changing your search or filter.
-            </p>
+          <div className="rounded-2xl border border-dashed border-[#a8d8df] p-10 text-center">
+            <h2 className="text-xl font-semibold text-[#09637e]">No opportunities found</h2>
+            <p className="mt-2 text-gray-600">Try changing your search or filter.</p>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {filteredOpportunities.map((opportunity) => (
-              <OpportunityCard
-                key={opportunity.id}
-                opportunity={opportunity}
-              />
+              <OpportunityCard key={opportunity.id} opportunity={opportunity} />
             ))}
           </div>
         )}
+
       </section>
     </main>
   );

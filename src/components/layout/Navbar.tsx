@@ -2,7 +2,7 @@
 
 import {useState} from 'react';
 import Link from 'next/link';
-import {Sun, Globe, Menu, X, Bookmark, Home} from 'lucide-react';
+import {Sun, Globe, Menu, X, Bookmark, Home, Plus} from 'lucide-react';
 import {usePathname} from 'next/navigation';
 
 export default function Navbar() {
@@ -46,21 +46,11 @@ export default function Navbar() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
-          <Link href={`/${locale}`} className={linkClass('')}>
-            Home
-          </Link>
-          <Link href={`/${locale}/opportunities`} className={linkClass('opportunities')}>
-            Opportunities
-          </Link>
-          <Link href={`/${locale}/dashboard`} className={linkClass('dashboard')}>
-            Dashboard
-          </Link>
-          <Link href={`/${locale}/about`} className={linkClass('about')}>
-            About
-          </Link>
-          <Link href={`/${locale}/contact`} className={linkClass('contact')}>
-            Contact
-          </Link>
+          <Link href={`/${locale}`} className={linkClass('')}>Home</Link>
+          <Link href={`/${locale}/opportunities`} className={linkClass('opportunities')}>Opportunities</Link>
+          <Link href={`/${locale}/dashboard`} className={linkClass('dashboard')}>Dashboard</Link>
+          <Link href={`/${locale}/about`} className={linkClass('about')}>About</Link>
+          <Link href={`/${locale}/contact`} className={linkClass('contact')}>Contact</Link>
         </nav>
 
         <div className="flex items-center gap-1">
@@ -74,6 +64,14 @@ export default function Navbar() {
           <button className={iconBtn} title="Language">
             <Globe size={18} />
           </button>
+          <Link
+            href={`/${locale}/add-opportunity`}
+            className="hidden md:inline-flex items-center gap-1.5 rounded-lg bg-[#09637e] px-3 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
+            title="Add opportunity"
+          >
+            <Plus size={16} />
+            Add
+          </Link>
           <button
             className={`md:hidden ${iconBtn}`}
             onClick={() => setOpen(!open)}
@@ -87,10 +85,7 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden border-t border-[#d1eef2] px-4 py-3 flex flex-col gap-1">
           <Link href={`/${locale}`} className={mobileLinkClass('')} onClick={() => setOpen(false)}>
-            <span className="flex items-center gap-2">
-              <Home size={15} />
-              Home
-            </span>
+            <span className="flex items-center gap-2"><Home size={15} />Home</span>
           </Link>
           <Link href={`/${locale}/opportunities`} className={mobileLinkClass('opportunities')} onClick={() => setOpen(false)}>
             Opportunities
@@ -105,7 +100,7 @@ export default function Navbar() {
             Contact
           </Link>
 
-          <div className="border-t border-[#d1eef2] mt-2 pt-2">
+          <div className="border-t border-[#d1eef2] mt-2 pt-2 flex flex-col gap-1">
             <Link
               href={`/${locale}/saved`}
               className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-[#d1eef2] hover:text-[#09637e]"
@@ -113,6 +108,14 @@ export default function Navbar() {
             >
               <Bookmark size={16} />
               Saved Opportunities
+            </Link>
+            <Link
+              href={`/${locale}/add-opportunity`}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-white bg-[#09637e]"
+              onClick={() => setOpen(false)}
+            >
+              <Plus size={16} />
+              Add Opportunity
             </Link>
             <button className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-[#d1eef2] hover:text-[#09637e] w-full">
               <Globe size={16} />
