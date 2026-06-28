@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import {useState} from 'react';
 import {Plus, Send, X} from 'lucide-react';
 import {usePathname, useRouter} from 'next/navigation';
@@ -68,9 +69,13 @@ export default function AddOpportunityPage() {
       <main className="min-h-screen bg-[var(--color-background)]">
         <section className="container-custom py-16">
           <div className="mx-auto flex max-w-md flex-col items-center rounded-2xl border border-[#d1eef2] bg-white py-16 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#d1eef2] text-[#09637e]">
-              <Send size={28} />
-            </div>
+            <Image
+              src="/illustrations/illustration-add-opportunity.svg"
+              alt="Opportunity submitted"
+              width={200}
+              height={160}
+              className="mb-6"
+            />
             <h2 className="mb-2 text-xl font-bold text-[#09637e]">Opportunity submitted!</h2>
             <p className="mb-6 max-w-xs text-sm text-[var(--color-text-secondary)]">
               Thank you for sharing. It will be reviewed and listed shortly.
@@ -93,7 +98,14 @@ export default function AddOpportunityPage() {
 
         <div className="mx-auto max-w-2xl">
           {/* Hero */}
-          <div className="mb-8 text-center">
+          <div className="mb-8 flex flex-col items-center text-center">
+            <Image
+              src="/illustrations/illustration-add-opportunity.svg"
+              alt="Add an opportunity"
+              width={220}
+              height={180}
+              className="mb-6"
+            />
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-4 py-2 text-sm font-medium text-[#09637e]">
               <Plus size={14} />
               New listing
@@ -111,7 +123,6 @@ export default function AddOpportunityPage() {
               Fields marked with <span className="text-red-500">*</span> are required.
             </p>
 
-            {/* Basic info */}
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
               Basic information
             </p>
@@ -198,7 +209,6 @@ export default function AddOpportunityPage() {
               </div>
             </div>
 
-            {/* Details */}
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
               Details
             </p>
@@ -225,7 +235,7 @@ export default function AddOpportunityPage() {
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Basic React&#10;HTML/CSS&#10;GitHub"
+                  placeholder="Basic React"
                   value={form.requirements}
                   onChange={(e) => set('requirements', e.target.value)}
                   className={`${inputClass} resize-none`}
@@ -247,7 +257,6 @@ export default function AddOpportunityPage() {
               </div>
             </div>
 
-            {/* Tags */}
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
               Tags
             </p>
@@ -271,7 +280,6 @@ export default function AddOpportunityPage() {
               />
             </div>
 
-            {/* Buttons */}
             <div className="flex justify-end gap-3">
               <button
                 type="button"

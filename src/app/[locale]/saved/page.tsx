@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import {useState, useEffect} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
@@ -25,27 +26,40 @@ export default function SavedPage() {
     <main className="min-h-screen bg-[var(--color-background)]">
       <section className="container-custom py-12">
 
-        <div className="mb-10 flex items-center justify-between">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-3 py-1 text-xs font-medium text-[#09637e]">
-              <Bookmark size={12} />
-              {mounted ? savedOpportunities.length : 0} saved
-            </div>
-            <h1 className="text-3xl font-extrabold text-[var(--color-primary-dark)] md:text-4xl">
-              Saved Opportunities
-            </h1>
-            <p className="mt-2 text-[var(--color-text-secondary)]">
-              Opportunities you bookmarked for later.
-            </p>
+        {/* Header */}
+        <div className="mb-10">
+          <div className="mb-6 flex justify-center">
+            <Image
+              src="/illustrations/illustration-saved.svg"
+              alt="Saved opportunities"
+              width={260}
+              height={200}
+              className="w-[200px] md:w-[260px]"
+            />
           </div>
 
-          <Link
-            href={`/${locale}/opportunities`}
-            className="hidden items-center gap-2 rounded-xl border border-[#a8d8df] bg-white px-5 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2] md:flex"
-          >
-            Browse More
-            <ArrowRight size={16} />
-          </Link>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-3 py-1 text-xs font-medium text-[#09637e]">
+                <Bookmark size={12} />
+                {mounted ? savedOpportunities.length : 0} saved
+              </div>
+              <h1 className="text-3xl font-extrabold text-[var(--color-primary-dark)] md:text-4xl">
+                Saved Opportunities
+              </h1>
+              <p className="mt-2 text-[var(--color-text-secondary)]">
+                Opportunities you bookmarked for later.
+              </p>
+            </div>
+
+            <Link
+              href={`/${locale}/opportunities`}
+              className="hidden items-center gap-2 rounded-xl border border-[#a8d8df] bg-white px-5 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2] md:flex"
+            >
+              Browse More
+              <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
 
         {!mounted ? (

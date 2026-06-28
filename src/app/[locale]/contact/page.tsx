@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import {useState} from 'react';
 import {Mail, MapPin, Clock, Send, MessageSquare} from 'lucide-react';
 
@@ -16,17 +17,29 @@ export default function ContactPage() {
       <section className="container-custom py-16">
 
         {/* Hero */}
-        <div className="mb-12 text-center">
+        
+
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/illustrations/illustration-contact.svg"
+              alt="Contact us"
+              width={280}
+              height={220}
+              className="w-full max-w-xs"
+            />
+          </div>
+          <div className="mb-12 text-center">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-4 py-2 text-sm font-medium text-[#09637e]">
             <Mail size={14} />
             Get in touch
           </div>
+
           <h1 className="mb-4 text-4xl font-extrabold text-[#09637e] md:text-5xl">
-            We had love to hear from you
+            We would love to hear from you
           </h1>
           <p className="mx-auto max-w-md text-base leading-relaxed text-[var(--color-text-secondary)]">
             Have a question, suggestion, or want to submit an opportunity?
-            Send us a message and we all get back to you within 24 hours.
+            Send us a message and we will get back to you within 24 hours.
           </p>
         </div>
 
@@ -84,7 +97,7 @@ export default function ContactPage() {
                 </div>
                 <h2 className="mb-2 text-xl font-bold text-[#09637e]">Message sent!</h2>
                 <p className="text-[var(--color-text-secondary)]">
-                  Thanks for reaching out. We all get back to you within 24 hours.
+                  Thanks for reaching out. We will get back to you within 24 hours.
                 </p>
               </div>
             ) : (
@@ -121,9 +134,7 @@ export default function ContactPage() {
                     <label className="mb-1.5 block text-sm font-medium text-[#374151]">
                       Subject
                     </label>
-                    <select
-                      className="w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#09637e] focus:ring-2 focus:ring-[#d1eef2]"
-                    >
+                    <select className="w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#09637e] focus:ring-2 focus:ring-[#d1eef2]">
                       <option>General question</option>
                       <option>Submit an opportunity</option>
                       <option>Report an issue</option>

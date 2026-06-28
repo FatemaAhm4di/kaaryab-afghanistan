@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import {useMemo, useState} from 'react';
 import Link from 'next/link';
 import {Plus} from 'lucide-react';
@@ -28,23 +29,36 @@ export default function OpportunitiesPage() {
     <main className="min-h-screen bg-[var(--color-background)] py-10">
       <section className="container-custom">
 
-        <div className="mb-10 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-[var(--color-primary-dark)] md:text-4xl">
-              Opportunities
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Discover jobs, internships, scholarships and remote work opportunities.
-            </p>
+        {/* Header */}
+        <div className="mb-10">
+          <div className="mb-6 flex justify-center">
+            <Image
+              src="/illustrations/illustration-opportunities.svg"
+              alt="Browse opportunities"
+              width={260}
+              height={200}
+              className="w-[200px] md:w-[260px]"
+            />
           </div>
-          <Link
-            href={`/${locale}/add-opportunity`}
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#09637e] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-          >
-            <Plus size={16} />
-            <span className="hidden sm:inline">Add opportunity</span>
-            <span className="sm:hidden">Add</span>
-          </Link>
+
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-[var(--color-primary-dark)] md:text-4xl">
+                Opportunities
+              </h1>
+              <p className="mt-2 text-gray-600">
+                Discover jobs, internships, scholarships and remote work opportunities.
+              </p>
+            </div>
+            <Link
+              href={`/${locale}/add-opportunity`}
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#09637e] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              <Plus size={16} />
+              <span className="hidden sm:inline">Add opportunity</span>
+              <span className="sm:hidden">Add</span>
+            </Link>
+          </div>
         </div>
 
         <div className="mb-8 grid gap-4 md:grid-cols-2">
@@ -69,7 +83,14 @@ export default function OpportunitiesPage() {
         </div>
 
         {filteredOpportunities.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#a8d8df] p-10 text-center">
+          <div className="flex flex-col items-center rounded-2xl border border-dashed border-[#a8d8df] p-10 text-center">
+            <Image
+              src="/illustrations/illustration-opportunities.svg"
+              alt="No opportunities found"
+              width={180}
+              height={140}
+              className="mb-4 opacity-70"
+            />
             <h2 className="text-xl font-semibold text-[#09637e]">No opportunities found</h2>
             <p className="mt-2 text-gray-600">Try changing your search or filter.</p>
           </div>

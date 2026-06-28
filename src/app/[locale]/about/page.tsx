@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Globe,
   ShieldCheck,
@@ -14,23 +15,36 @@ export default function AboutPage() {
       <section className="container-custom py-16">
 
         {/* Hero */}
-        <div className="mb-16 text-center">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-4 py-2 text-sm font-medium text-[#09637e]">
-            <MapPin size={14} />
-            Built in Herat, Afghanistan
-          </div>
+        {/* Hero */}
+<div className="mb-16 grid items-center gap-10 md:grid-cols-2">
+  <div className="flex justify-center md:order-last">
+    <Image
+      src="/illustrations/illustration-about.svg"
+      alt="Afghan youth connecting to opportunities"
+      width={420}
+      height={320}
+      className="w-full max-w-sm"
+    />
+  </div>
 
-          <h1 className="mx-auto max-w-2xl text-4xl font-extrabold leading-tight text-[#09637e] md:text-5xl">
-            Connecting Afghan Youth to{' '}
-            <span className="text-[#088395]">Real Opportunities</span>
-          </h1>
+  <div>
+    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-4 py-2 text-sm font-medium text-[#09637e]">
+      <MapPin size={14} />
+      Built in Herat, Afghanistan
+    </div>
 
-          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-[var(--color-text-secondary)]">
-            KaarYab was built because I got tired of seeing talented young
-            Afghans miss out on opportunities simply because they didnt
-            know where to look. Everything in one place. Free. Always.
-          </p>
-        </div>
+    <h1 className="text-4xl font-extrabold leading-tight text-[#09637e] md:text-5xl">
+      Connecting Afghan Youth to{' '}
+      <span className="text-[#088395]">Real Opportunities</span>
+    </h1>
+
+    <p className="mt-5 text-base leading-relaxed text-[var(--color-text-secondary)]">
+      KaarYab was built because I got tired of seeing talented young
+      Afghans miss out on opportunities simply because they did not
+      know where to look. Everything in one place. Free. Always.
+    </p>
+  </div>
+</div>
 
         {/* Mission */}
         <div className="mb-6 rounded-2xl border border-[#d1eef2] bg-white p-8">
@@ -44,26 +58,26 @@ export default function AboutPage() {
             Jobs, scholarships, internships, and remote work are scattered
             across dozens of websites, Telegram channels, and Facebook
             groups. Most young people in Afghanistan miss them not because
-            they are not qualified  but because no one told them in time.
+            they are not qualified but because no one told them in time.
             KaarYab changes that.
           </p>
         </div>
 
         {/* Stats */}
         <div className="mb-6 grid grid-cols-3 gap-4">
-  <div className="rounded-2xl border border-[#d1eef2] bg-white p-4 text-center md:p-6">
-    <div className="text-2xl font-bold text-[#09637e] md:text-3xl">120+</div>
-    <div className="mt-1 text-xs leading-snug text-[var(--color-text-secondary)] md:text-sm">Active opportunities</div>
-  </div>
-  <div className="rounded-2xl border border-[#d1eef2] bg-white p-4 text-center md:p-6">
-    <div className="text-2xl font-bold text-[#09637e] md:text-3xl">8</div>
-    <div className="mt-1 text-xs leading-snug text-[var(--color-text-secondary)] md:text-sm">Categories</div>
-  </div>
-  <div className="rounded-2xl border border-[#d1eef2] bg-white p-4 text-center md:p-6">
-    <div className="text-2xl font-bold text-[#09637e] md:text-3xl">3</div>
-    <div className="mt-1 text-xs leading-snug text-[var(--color-text-secondary)] md:text-sm">Languages</div>
-  </div>
-</div>
+          <div className="rounded-2xl border border-[#d1eef2] bg-white p-4 text-center md:p-6">
+            <div className="text-2xl font-bold text-[#09637e] md:text-3xl">120+</div>
+            <div className="mt-1 text-xs leading-snug text-[var(--color-text-secondary)] md:text-sm">Active opportunities</div>
+          </div>
+          <div className="rounded-2xl border border-[#d1eef2] bg-white p-4 text-center md:p-6">
+            <div className="text-2xl font-bold text-[#09637e] md:text-3xl">8</div>
+            <div className="mt-1 text-xs leading-snug text-[var(--color-text-secondary)] md:text-sm">Categories</div>
+          </div>
+          <div className="rounded-2xl border border-[#d1eef2] bg-white p-4 text-center md:p-6">
+            <div className="text-2xl font-bold text-[#09637e] md:text-3xl">3</div>
+            <div className="mt-1 text-xs leading-snug text-[var(--color-text-secondary)] md:text-sm">Languages</div>
+          </div>
+        </div>
 
         {/* Values */}
         <div className="mb-6 grid gap-4 md:grid-cols-2">
@@ -86,7 +100,7 @@ export default function AboutPage() {
             <div>
               <h3 className="mb-1 font-semibold text-[#09637e]">Multilingual</h3>
               <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
-                Available in Dari, Pashto, and English  because language shouldnt be a barrier.
+                Available in Dari, Pashto, and English — because language shouldnt be a barrier.
               </p>
             </div>
           </div>
@@ -130,7 +144,7 @@ export default function AboutPage() {
               <p className="mb-3 text-sm text-[#088395]">Founder · Herat, Afghanistan</p>
               <p className="leading-relaxed text-[var(--color-text-secondary)]">
                 Im a self-taught frontend developer from Herat. When access
-                to education became limited, I turned to the internet and
+                to education became limited, I turned to the internet — and
                 learned everything from scratch. KaarYab is my way of making
                 sure others dont have to search as hard as I did.
               </p>
@@ -144,7 +158,7 @@ export default function AboutPage() {
             Ready to find your opportunity?
           </h2>
           <p className="mb-6 text-[rgba(255,255,255,0.75)]">
-            Browse jobs, scholarships, internships and more all in one place.
+            Browse jobs, scholarships, internships and more — all in one place.
           </p>
           <Link
             href="/opportunities"
