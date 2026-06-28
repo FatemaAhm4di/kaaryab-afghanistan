@@ -12,13 +12,13 @@ export default function Page() {
 
           
 
-          <div className="my-8 flex justify-center">
+          <div className="mb-6 flex justify-center">
             <Image
               src="/illustrations/illustration-home.svg"
               alt="Find opportunities"
               width={320}
               height={260}
-              className="w-[220px] md:w-[320px]"
+              className="w-[220px] md:w-[400px]"
             />
           </div>
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-4 py-2 text-sm font-medium text-[var(--color-primary-dark)]">
@@ -54,7 +54,7 @@ export default function Page() {
             </Link>
           </div>
 
-          <div className="mt-14 flex flex-wrap items-center justify-center gap-8">
+          <div className="mt-14 flex flex-wrap items-center justify-center gap-6 text-sm text-[var(--color-text-secondary)]">
             <div className="text-center">
               <div className="text-2xl font-bold text-[var(--color-primary-dark)]">120+</div>
               <div className="text-sm text-[var(--color-text-secondary)]">Opportunities</div>
@@ -71,48 +71,47 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="mt-10 grid grid-cols-2 gap-3 px-4 md:flex md:flex-wrap md:justify-center md:px-0">
-            <div className="flex items-center gap-3 rounded-2xl border border-[#d1eef2] bg-white px-4 py-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#d1eef2] text-[var(--color-primary-dark)]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-              </div>
-              <div className="text-left">
-                <div className="text-xs text-[var(--color-text-secondary)]">Jobs</div>
-                <div className="text-sm font-semibold text-[var(--color-text-primary)]">45 open</div>
-              </div>
-            </div>
+          <div className="mt-10 grid grid-cols-2 gap-4 px-4 md:grid-cols-4 md:px-0">
+  <div className="flex items-center gap-3 rounded-2xl border border-[#d1eef2] bg-white px-5 py-4">
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#d1eef2] text-[var(--color-primary-dark)]">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    </div>
+    <div className="text-left">
+      <div className="text-xs text-[var(--color-text-secondary)]">Jobs</div>
+      <div className="text-base font-semibold text-[var(--color-text-primary)]">45 open</div>
+    </div>
+  </div>
 
-            <div className="flex items-center gap-3 rounded-2xl border border-[#fde68a] bg-white px-4 py-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#fef3c7] text-yellow-700">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-              </div>
-              <div className="text-left">
-                <div className="text-xs text-[var(--color-text-secondary)]">Scholarships</div>
-                <div className="text-sm font-semibold text-[var(--color-text-primary)]">28 active</div>
-              </div>
-            </div>
+  <div className="flex items-center gap-3 rounded-2xl border border-[#fde68a] bg-white px-5 py-4">
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fef3c7] text-yellow-700">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+    </div>
+    <div className="text-left">
+      <div className="text-xs text-[var(--color-text-secondary)]">Scholarships</div>
+      <div className="text-base font-semibold text-[var(--color-text-primary)]">28 active</div>
+    </div>
+  </div>
 
-            <div className="flex items-center gap-3 rounded-2xl border border-[#ddd6fe] bg-white px-4 py-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ede9fe] text-purple-700">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-              </div>
-              <div className="text-left">
-                <div className="text-xs text-[var(--color-text-secondary)]">Internships</div>
-                <div className="text-sm font-semibold text-[var(--color-text-primary)]">33 open</div>
-              </div>
-            </div>
+  <div className="flex items-center gap-3 rounded-2xl border border-[#ddd6fe] bg-white px-5 py-4">
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#ede9fe] text-purple-700">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    </div>
+    <div className="text-left">
+      <div className="text-xs text-[var(--color-text-secondary)]">Internships</div>
+      <div className="text-base font-semibold text-[var(--color-text-primary)]">33 open</div>
+    </div>
+  </div>
 
-            <div className="flex items-center gap-3 rounded-2xl border border-[#a7f3d0] bg-white px-4 py-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#d1fae5] text-green-700">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-              </div>
-              <div className="text-left">
-                <div className="text-xs text-[var(--color-text-secondary)]">Remote</div>
-                <div className="text-sm font-semibold text-[var(--color-text-primary)]">14 open</div>
-              </div>
-            </div>
-          </div>
-
+  <div className="flex items-center gap-3 rounded-2xl border border-[#a7f3d0] bg-white px-5 py-4">
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#d1fae5] text-green-700">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+    </div>
+    <div className="text-left">
+      <div className="text-xs text-[var(--color-text-secondary)]">Remote</div>
+      <div className="text-base font-semibold text-[var(--color-text-primary)]">14 open</div>
+    </div>
+  </div>
+</div>
         </div>
       </section>
     </main>
