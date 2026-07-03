@@ -1,7 +1,8 @@
 import './globals.css';
-import { Inter } from 'next/font/google';
+import {Inter} from 'next/font/google';
 import Navbar from '@/components/layout/Navbar';
-import { SavedOpportunitiesProvider } from '@/context/SavedOpportunitiesContext';
+import Footer from '@/components/layout/Footer';
+import {SavedOpportunitiesProvider} from '@/context/SavedOpportunitiesContext';
 
 const inter = Inter({
   subsets: ['latin']
@@ -18,6 +19,7 @@ export default function RootLayout({
         <SavedOpportunitiesProvider>
           <Navbar />
           {children}
+          <Footer />
         </SavedOpportunitiesProvider>
       </body>
     </html>
