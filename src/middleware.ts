@@ -6,7 +6,11 @@ import {routing} from './i18n/routing';
 const intlMiddleware = createMiddleware(routing);
 
 export async function middleware(request: NextRequest) {
-  const response = intlMiddleware(request);
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,10 +21,15 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({name, value, options}) => {
-            request.cookies.set(name, value);
-            response.cookies.set(name, value, options);
+          cookiesToSet.forEach(({name, value}) =>
+            request.cookies.set(name, value)
+          );
+          response = NextResponse.next({
+            request,
           });
+          cookiesToSet.forEach(({name, value, options}) =>
+            response.cookies.set(name, value, options)
+          );
         },
       },
     }
@@ -41,7 +50,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return response;
+  const intlResponse = intlMiddleware(request);
+  
+  intlResponse.cookies.getAll().forEach(({name, value}) => {
+    response.cookies.set(name, value);
+  });
+
+  return intlResponse;
 }
 
 export const config = {
