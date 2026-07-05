@@ -1,14 +1,32 @@
 'use client';
 
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import Link from 'next/link';
-import {Sun, Globe, Menu, X, Bookmark, Home, Plus} from 'lucide-react';
-import {usePathname} from 'next/navigation';
+import {Sun, Globe, Menu, X, Bookmark, Home, Plus, User, LogOut, LogIn} from 'lucide-react';
+import {usePathname, useRouter} from 'next/navigation';
+import {supabase} from '@/lib/supabase';
+import type {User as SupabaseUser} from '@supabase/supabase-js';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'fa';
+  const router = useRouter();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({data}) => setUser(data.user));
+    const {data: {subscription}} = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push(`/${locale}`);
+    router.refresh();
+  };
 
   const isActive = (path: string) =>
     path === ''
@@ -64,6 +82,34 @@ export default function Navbar() {
           <button className={iconBtn} title="Language">
             <Globe size={18} />
           </button>
+
+          {user ? (
+            <>
+              <Link
+                href={`/${locale}/profile`}
+                className={iconBtn}
+                title="Profile"
+              >
+                <User size={18} />
+              </Link>
+              <button
+                onClick={handleLogout}
+                className={iconBtn}
+                title="Sign out"
+              >
+                <LogOut size={18} />
+              </button>
+            </>
+          ) : (
+            <Link
+              href={`/${locale}/login`}
+              className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-[#09637e] px-3 py-1.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
+            >
+              <LogIn size={16} />
+              Sign in
+            </Link>
+          )}
+
           <Link
             href={`/${locale}/add-opportunity`}
             className="hidden md:inline-flex items-center gap-1.5 rounded-lg bg-[#09637e] px-3 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -109,6 +155,36 @@ export default function Navbar() {
               <Bookmark size={16} />
               Saved Opportunities
             </Link>
+
+            {user ? (
+              <>
+                <Link
+                  href={`/${locale}/profile`}
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-[#d1eef2] hover:text-[#09637e]"
+                  onClick={() => setOpen(false)}
+                >
+                  <User size={16} />
+                  Profile
+                </Link>
+                <button
+                  onClick={() => {handleLogout(); setOpen(false);}}
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full"
+                >
+                  <LogOut size={16} />
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <Link
+                href={`/${locale}/login`}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-[#09637e] border border-[#09637e] hover:bg-[#d1eef2]"
+                onClick={() => setOpen(false)}
+              >
+                <LogIn size={16} />
+                Sign in
+              </Link>
+            )}
+
             <Link
               href={`/${locale}/add-opportunity`}
               className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-white bg-[#09637e]"
@@ -117,7 +193,7 @@ export default function Navbar() {
               <Plus size={16} />
               Add Opportunity
             </Link>
-            <button className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-[#d1eef2] hover:text-[#09637e] w-full">
+            <button className="flex items-center gap-2 px.3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-[#d1eef2] hover:text-[#09637e] w-full">
               <Globe size={16} />
               Language
             </button>
