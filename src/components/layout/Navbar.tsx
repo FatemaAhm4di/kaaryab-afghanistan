@@ -7,15 +7,16 @@ import {Sun, Globe, Menu, X, Bookmark, Home, Plus, User, LogOut, LogIn} from 'lu
 import {usePathname, useRouter} from 'next/navigation';
 import {supabase} from '@/lib/supabase';
 import type {User as SupabaseUser} from '@supabase/supabase-js';
+import {useProfile} from '@/context/ProfileContext';
 
-type Profile = {
+type ProfileType = {
   firstName: string | null;
   lastName: string | null;
   avatar: string | null;
   gender: string | null;
 };
 
-function Avatar({profile, avatarSrc}: {profile: Profile | null; avatarSrc: string | null}) {
+function Avatar({profile, avatarSrc}: {profile: ProfileType | null; avatarSrc: string | null}) {
   return (
     <div className="h-7 w-7 overflow-hidden rounded-full border-2 border-[#09637e]">
       {avatarSrc ? (
@@ -32,7 +33,7 @@ function Avatar({profile, avatarSrc}: {profile: Profile | null; avatarSrc: strin
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const {profile, refreshProfile} = useProfile();
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'fa';
   const router = useRouter();
@@ -41,35 +42,18 @@ export default function Navbar() {
     const loadUser = async () => {
       const {data} = await supabase.auth.getUser();
       setUser(data.user);
-
-      if (data.user) {
-        const {data: profileData} = await supabase
-          .from('Profile')
-          .select('firstName, lastName, avatar, gender')
-          .eq('userId', data.user.id)
-          .single();
-        setProfile(profileData);
-      }
+      if (data.user) await refreshProfile();
     };
 
     loadUser();
 
     const {data: {subscription}} = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        const {data: profileData} = await supabase
-          .from('Profile')
-          .select('firstName, lastName, avatar, gender')
-          .eq('userId', session.user.id)
-          .single();
-        setProfile(profileData);
-      } else {
-        setProfile(null);
-      }
+      await refreshProfile();
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [refreshProfile]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

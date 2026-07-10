@@ -9,6 +9,7 @@ import {zodResolver} from '@hookform/resolvers/zod';
 import {supabase} from '@/lib/supabase';
 import {User, Save, ArrowLeft, Pencil, LogOut, Camera, X} from 'lucide-react';
 import Link from 'next/link';
+import {useProfile} from '@/context/ProfileContext';
 
 const schema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -41,6 +42,7 @@ export default function ProfilePage() {
   const locale = pathname.split('/')[1] || 'fa';
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const {refreshProfile} = useProfile();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -170,6 +172,7 @@ export default function ProfilePage() {
       setSuccess(true);
       setEditMode(false);
       setProfileData({...profileData, ...data});
+      await refreshProfile();
       setTimeout(() => setSuccess(false), 3000);
     }
     setSaving(false);
@@ -203,7 +206,6 @@ export default function ProfilePage() {
 
         <div className="mx-auto max-w-2xl">
 
-          {/* Avatar */}
           <div className="mb-8 flex flex-col items-center text-center">
             <div className="relative mb-4">
               <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-[#d1eef2] bg-[#d1eef2] overflow-hidden">
@@ -272,7 +274,6 @@ export default function ProfilePage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl border border-[#d1eef2] bg-white p-8">
 
-            {/* Basic info */}
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
               Basic information
             </p>
@@ -338,7 +339,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Professional info */}
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
               Professional information
             </p>
@@ -363,7 +363,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* About */}
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
               About
             </p>
