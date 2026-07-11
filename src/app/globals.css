@@ -69,7 +69,7 @@ body {
 .dark .text-gray-600,
 .dark .text-gray-700,
 .dark .text-gray-800 {
-  color: #dce8f7 !important;
+  color: #cbd5e1 !important;
 }
 
 .dark .text-\[\#1f2937\] {
@@ -77,17 +77,28 @@ body {
 }
 
 .dark .text-\[\#374151\] {
-  color: #d7e1ef !important;
+  color: #e2e8f0 !important;
 }
 
 .dark .text-\[\#6b7280\] {
-  color: #9dabbc !important;
+  color: #cbd5e1 !important;
 }
 
 /* Navbar - light mode fix */
 header {
   background: rgba(235, 244, 246, 0.85) !important;
   border-color: #d1eef2 !important;
+  color: #1f2937 !important;
+}
+
+header a,
+header button,
+header nav {
+  color: #374151 !important;
+}
+
+header .text-\[\#01637e\] {
+  color: #09637e !important;
 }
 
 .dark header {
