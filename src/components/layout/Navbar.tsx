@@ -3,11 +3,12 @@
 import Image from 'next/image';
 import {useState, useEffect} from 'react';
 import Link from 'next/link';
-import {Sun, Globe, Menu, X, Bookmark, Home, Plus, User, LogOut, LogIn} from 'lucide-react';
+import {Sun, Moon, Globe, Menu, X, Bookmark, Home, Plus, User, LogOut, LogIn} from 'lucide-react';
 import {usePathname, useRouter} from 'next/navigation';
 import {supabase} from '@/lib/supabase';
 import type {User as SupabaseUser} from '@supabase/supabase-js';
 import {useProfile} from '@/context/ProfileContext';
+import {useTheme} from '@/context/ThemeContext';
 
 type ProfileType = {
   firstName: string | null;
@@ -34,6 +35,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const {profile, refreshProfile} = useProfile();
+  const {theme, toggleTheme} = useTheme();
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'fa';
   const router = useRouter();
@@ -78,21 +80,21 @@ export default function Navbar() {
     `px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
       isActive(path)
         ? 'bg-[#d1eef2] text-[#09637e]'
-        : 'text-gray-700 hover:bg-[#d1eef2] hover:text-[#09637e]'
+        : 'text-gray-700 dark:text-gray-300 hover:bg-[#d1eef2] hover:text-[#09637e]'
     }`;
 
   const mobileLinkClass = (path: string) =>
     `block px-3 py-2.5 rounded-lg text-sm font-medium ${
       isActive(path)
         ? 'bg-[#d1eef2] text-[#09637e]'
-        : 'text-gray-700 hover:bg-[#d1eef2] hover:text-[#09637e]'
+        : 'text-gray-700 dark:text-gray-300 hover:bg-[#d1eef2] hover:text-[#09637e]'
     }`;
 
   const iconBtn =
-    'w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 hover:bg-[#d1eef2] hover:text-[#09637e] border border-transparent hover:border-[#a8d8df] transition-colors';
+    'w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-300 hover:bg-[#d1eef2] hover:text-[#09637e] border border-transparent hover:border-[#a8d8df] transition-colors';
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#d1eef2] bg-[rgba(235,244,246,0.85)] backdrop-blur-xl shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-[#d1eef2] dark:border-gray-700 bg-[rgba(235,244,246,0.85)] dark:bg-[rgba(15,23,42,0.85)] backdrop-blur-xl shadow-sm">
 
       <div className="max-w-6xl mx-auto px-4 h-[60px] flex items-center justify-between">
 
@@ -113,10 +115,13 @@ export default function Navbar() {
           <Link href={`/${locale}/saved`} className={iconBtn} title="Saved">
             <Bookmark size={18} />
           </Link>
-          <button className={iconBtn} title="Dark mode">
-            <Sun size={18} />
+
+          <button onClick={toggleTheme} className={iconBtn} title="Toggle theme">
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-          <div className="w-px h-5 bg-[#d1d5db] mx-1" />
+
+          <div className="w-px h-5 bg-[#d1d5db] dark:bg-gray-600 mx-1" />
+
           <button className={iconBtn} title="Language">
             <Globe size={18} />
           </button>
@@ -155,7 +160,7 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden border-t border-[#d1eef2] px-4 py-3 flex flex-col gap-1">
+        <div className="md:hidden border-t border-[#d1eef2] dark:border-gray-700 px-4 py-3 flex flex-col gap-1">
           <Link href={`/${locale}`} className={mobileLinkClass('')} onClick={() => setOpen(false)}>
             <span className="flex items-center gap-2"><Home size={15} />Home</span>
           </Link>
@@ -164,10 +169,10 @@ export default function Navbar() {
           <Link href={`/${locale}/about`} className={mobileLinkClass('about')} onClick={() => setOpen(false)}>About</Link>
           <Link href={`/${locale}/contact`} className={mobileLinkClass('contact')} onClick={() => setOpen(false)}>Contact</Link>
 
-          <div className="border-t border-[#d1eef2] mt-2 pt-2 flex flex-col gap-1">
+          <div className="border-t border-[#d1eef2] dark:border-gray-700 mt-2 pt-2 flex flex-col gap-1">
             <Link
               href={`/${locale}/saved`}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-[#d1eef2] hover:text-[#09637e]"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-[#d1eef2] hover:text-[#09637e]"
               onClick={() => setOpen(false)}
             >
               <Bookmark size={16} />
@@ -178,7 +183,7 @@ export default function Navbar() {
               <>
                 <Link
                   href={`/${locale}/profile`}
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-[#d1eef2] hover:text-[#09637e]"
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-[#d1eef2] hover:text-[#09637e]"
                   onClick={() => setOpen(false)}
                 >
                   <Avatar profile={profile} avatarSrc={avatarSrc} />
@@ -211,7 +216,16 @@ export default function Navbar() {
               <Plus size={16} />
               Add Opportunity
             </Link>
-            <button className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-[#d1eef2] hover:text-[#09637e] w-full">
+
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-[#d1eef2] hover:text-[#09637e] w-full"
+            >
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            </button>
+
+            <button className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-[#d1eef2] hover:text-[#09637e] w-full">
               <Globe size={16} />
               Language
             </button>
