@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer';
 import {SavedOpportunitiesProvider} from '@/context/SavedOpportunitiesContext';
 import {ProfileProvider} from '@/context/ProfileContext';
 import {ThemeProvider} from '@/context/ThemeContext';
+import {OpportunitiesProvider} from '@/context/OpportunitiesContext';
 
 const inter = Inter({
   subsets: ['latin']
@@ -19,13 +20,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider>
-          <SavedOpportunitiesProvider>
-            <ProfileProvider>
-              <Navbar />
-              {children}
-              <Footer />
-            </ProfileProvider>
-          </SavedOpportunitiesProvider>
+          <OpportunitiesProvider>
+            <SavedOpportunitiesProvider>
+              <ProfileProvider>
+                <Navbar />
+                {children}
+                <Footer />
+              </ProfileProvider>
+            </SavedOpportunitiesProvider>
+          </OpportunitiesProvider>
         </ThemeProvider>
       </body>
     </html>

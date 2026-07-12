@@ -147,8 +147,7 @@ export default function Navbar() {
 
           <Link
             href={`/${locale}/add-opportunity`}
-            className="hidden md:inline-flex items-center gap-1.5 rounded-lg bg-[#09637e] px-3 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
-          >
+className="hidden md:inline-flex items-center gap-1.5 rounded-lg bg-[#27738b] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#3c6b75]"          >
             <Plus size={16} />
             Add
           </Link>
