@@ -7,19 +7,20 @@ import {useEffect, useState} from 'react';
 import type {Opportunity} from '@/features/opportunities/types';
 import {useSavedOpportunities} from '@/context/SavedOpportunitiesContext';
 import {useOpportunities} from '@/context/OpportunitiesContext';
+import {useTheme} from '@/context/ThemeContext';
 
 type Props = {
   opportunity: Opportunity;
 };
 
-const categoryColors: Record<string, string> = {
-  Job: 'bg-[#d1eef2] text-[#09637e]',
-  Internship: 'bg-purple-100 text-purple-700',
-  Scholarship: 'bg-yellow-100 text-yellow-700',
-  Remote: 'bg-green-100 text-green-700',
-  Training: 'bg-orange-100 text-orange-700',
-  Volunteer: 'bg-pink-100 text-pink-700',
-  Course: 'bg-blue-100 text-blue-700',
+const categoryColors: Record<string, {bg: string; text: string; darkBg: string; darkText: string}> = {
+  Job: {bg: '#d1eef2', text: '#09637e', darkBg: '#1e3a4a', darkText: '#38bdf8'},
+  Internship: {bg: '#ede9fe', text: '#5b21b6', darkBg: '#2e1065', darkText: '#a78bfa'},
+  Scholarship: {bg: '#fef3c7', text: '#92400e', darkBg: '#3d2000', darkText: '#fbbf24'},
+  Remote: {bg: '#d1fae5', text: '#065f46', darkBg: '#052e16', darkText: '#34d399'},
+  Training: {bg: '#ffedd5', text: '#9a3412', darkBg: '#3d1200', darkText: '#fb923c'},
+  Volunteer: {bg: '#fce7f3', text: '#9d174d', darkBg: '#3d0020', darkText: '#f472b6'},
+  Course: {bg: '#dbeafe', text: '#1e40af', darkBg: '#1e1b4b', darkText: '#60a5fa'},
 };
 
 function DeadlineCountdown({deadline}: {deadline: string}) {
@@ -52,6 +53,8 @@ function DeadlineCountdown({deadline}: {deadline: string}) {
 export default function OpportunityCard({opportunity}: Props) {
   const {toggleSave, isSaved} = useSavedOpportunities();
   const {deleteOpportunity} = useOpportunities();
+  const {theme} = useTheme();
+  const isDark = theme === 'dark';
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'fa';
   const [mounted, setMounted] = useState(false);
@@ -69,16 +72,33 @@ export default function OpportunityCard({opportunity}: Props) {
     setShowDeleteModal(false);
   };
 
+  const colors = categoryColors[opportunity.category];
+
   return (
     <>
-      <article className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+      <article
+        style={{
+          background: isDark ? '#1e293b' : '#ffffff',
+          borderColor: isDark ? '#334155' : '#e5e7eb',
+        }}
+        className="group rounded-2xl border p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+      >
 
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[opportunity.category] ?? 'bg-gray-100 text-gray-700'}`}>
+            <span
+              style={{
+                backgroundColor: isDark ? (colors?.darkBg ?? '#1e293b') : (colors?.bg ?? '#f3f4f6'),
+                color: isDark ? (colors?.darkText ?? '#cbd5e1') : (colors?.text ?? '#374151'),
+              }}
+              className="rounded-full px-3 py-1 text-xs font-semibold"
+            >
               {opportunity.category}
             </span>
-            <h3 className="mt-3 text-lg font-bold leading-snug text-[var(--color-text-primary)]">
+            <h3
+              style={{color: isDark ? '#f1f5f9' : '#1f2937'}}
+              className="mt-3 text-lg font-bold leading-snug"
+            >
               {opportunity.title}
             </h3>
           </div>
@@ -86,16 +106,14 @@ export default function OpportunityCard({opportunity}: Props) {
           <button
             type="button"
             onClick={() => toggleSave(opportunity.id)}
-            className="shrink-0 p-2 rounded-xl hover:bg-gray-100 transition"
+            style={{color: saved ? '#09637e' : (isDark ? '#64748b' : '#9ca3af')}}
+            className="shrink-0 p-2 rounded-xl transition hover:bg-gray-100"
           >
-            <Bookmark
-              size={18}
-              className={saved ? 'text-[#09637e] fill-current' : 'text-gray-400'}
-            />
+            <Bookmark size={18} className={saved ? 'fill-current' : ''} />
           </button>
         </div>
 
-        <div className="mt-4 flex flex-col gap-1.5 text-sm text-gray-500">
+        <div className="mt-4 flex flex-col gap-1.5 text-sm" style={{color: isDark ? '#94a3b8' : '#6b7280'}}>
           <div className="flex items-center gap-2">
             <Building2 size={14} className="shrink-0" />
             <span className="truncate">{opportunity.organization}</span>
@@ -111,14 +129,22 @@ export default function OpportunityCard({opportunity}: Props) {
         </div>
 
         <div className="mt-5 flex items-center justify-between">
-          <span className="rounded-full bg-[#f0fafa] border border-[#d1eef2] px-2.5 py-1 text-xs font-medium text-[#09637e]">
+          <span
+            style={{
+              backgroundColor: isDark ? '#1e3a4a' : '#f0fafa',
+              color: isDark ? '#38bdf8' : '#09637e',
+              border: `1px solid ${isDark ? '#1e3a4a' : '#d1eef2'}`,
+            }}
+            className="rounded-full px-2.5 py-1 text-xs font-medium"
+          >
             {opportunity.type}
           </span>
 
           <div className="flex items-center gap-2">
             <Link
               href={`/${locale}/opportunities/${opportunity.id}/edit`}
-              className="flex items-center gap-1 rounded-lg p-1.5 text-gray-400 hover:bg-[#d1eef2] hover:text-[#09637e] transition"
+              style={{color: isDark ? '#64748b' : '#9ca3af'}}
+              className="flex items-center gap-1 rounded-lg p-1.5 transition hover:bg-[#d1eef2] hover:text-[#09637e]"
               title="Edit"
             >
               <Pencil size={15} />
@@ -126,7 +152,8 @@ export default function OpportunityCard({opportunity}: Props) {
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
-              className="flex items-center gap-1 rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500 transition"
+              style={{color: isDark ? '#64748b' : '#9ca3af'}}
+              className="flex items-center gap-1 rounded-lg p-1.5 transition hover:bg-red-50 hover:text-red-500"
               title="Delete"
             >
               <Trash2 size={15} />
@@ -142,18 +169,20 @@ export default function OpportunityCard({opportunity}: Props) {
         </div>
       </article>
 
-      {/* Delete Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-sm rounded-2xl border border-[#d1eef2] bg-white p-6 shadow-xl">
+          <div
+            style={{background: isDark ? '#1e293b' : '#ffffff', borderColor: isDark ? '#334155' : '#d1eef2'}}
+            className="mx-4 w-full max-w-sm rounded-2xl border p-6 shadow-xl"
+          >
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
               <Trash2 size={22} className="text-red-500" />
             </div>
-            <h3 className="mb-2 text-lg font-bold text-[var(--color-text-primary)]">
+            <h3 style={{color: isDark ? '#f1f5f9' : '#1f2937'}} className="mb-2 text-lg font-bold">
               Delete opportunity?
             </h3>
-            <p className="mb-6 text-sm text-gray-500">
-              This will permanently delete <strong>{opportunity.title}</strong>. This action cannot be undone.
+            <p style={{color: isDark ? '#94a3b8' : '#6b7280'}} className="mb-6 text-sm">
+              This will permanently delete <strong style={{color: isDark ? '#f1f5f9' : '#1f2937'}}>{opportunity.title}</strong>. This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
