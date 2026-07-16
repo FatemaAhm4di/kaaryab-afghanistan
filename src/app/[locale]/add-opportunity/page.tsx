@@ -4,6 +4,7 @@ import Image from 'next/image';
 import {useState} from 'react';
 import {Plus, Send, X} from 'lucide-react';
 import {usePathname, useRouter} from 'next/navigation';
+import {useOpportunities} from '@/context/OpportunitiesContext';
 
 const inputClass =
   'w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 text-sm text-[#1f2937] outline-none transition focus:border-[#09637e] focus:ring-2 focus:ring-[#d1eef2]';
@@ -12,11 +13,13 @@ export default function AddOpportunityPage() {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'fa';
   const router = useRouter();
+  const {createOpportunity} = useOpportunities();
 
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
     title: '',
@@ -54,13 +57,29 @@ export default function AddOpportunityPage() {
     return e;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const e2 = validate();
     if (Object.keys(e2).length > 0) {
       setErrors(e2);
       return;
     }
+
+    setSubmitting(true);
+    await createOpportunity({
+      title: form.title,
+      organization: form.organization,
+      category: form.category as any,
+      type: form.type as any,
+      location: form.location,
+      deadline: form.deadline,
+      description: form.description,
+      requirements: form.requirements.split('\n').filter(Boolean),
+      applyLink: form.applyLink,
+      tags,
+      featured: false,
+    });
+    setSubmitting(false);
     setSubmitted(true);
   };
 
@@ -97,7 +116,6 @@ export default function AddOpportunityPage() {
       <section className="container-custom py-16">
 
         <div className="mx-auto max-w-2xl">
-          {/* Hero */}
           <div className="mb-8 flex flex-col items-center text-center">
             <Image
               src="/illustrations/illustration-add-opportunity.svg"
@@ -132,13 +150,7 @@ export default function AddOpportunityPage() {
                 <label className="mb-1.5 block text-sm font-medium text-[#374151]">
                   Title <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Frontend Developer Intern"
-                  value={form.title}
-                  onChange={(e) => set('title', e.target.value)}
-                  className={inputClass}
-                />
+                <input type="text" placeholder="e.g. Frontend Developer Intern" value={form.title} onChange={(e) => set('title', e.target.value)} className={inputClass} />
                 {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title}</p>}
               </div>
 
@@ -146,20 +158,12 @@ export default function AddOpportunityPage() {
                 <label className="mb-1.5 block text-sm font-medium text-[#374151]">
                   Organization <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Kabul Tech Community"
-                  value={form.organization}
-                  onChange={(e) => set('organization', e.target.value)}
-                  className={inputClass}
-                />
+                <input type="text" placeholder="e.g. Kabul Tech Community" value={form.organization} onChange={(e) => set('organization', e.target.value)} className={inputClass} />
                 {errors.organization && <p className="mt-1 text-xs text-red-500">{errors.organization}</p>}
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  Category <span className="text-red-500">*</span>
-                </label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Category <span className="text-red-500">*</span></label>
                 <select value={form.category} onChange={(e) => set('category', e.target.value)} className={inputClass}>
                   <option>Job</option>
                   <option>Internship</option>
@@ -171,40 +175,23 @@ export default function AddOpportunityPage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  Type <span className="text-red-500">*</span>
-                </label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Type <span className="text-red-500">*</span></label>
                 <select value={form.type} onChange={(e) => set('type', e.target.value)} className={inputClass}>
-                  <option>Remote</option>
-                  <option>On-site</option>
-                  <option>Hybrid</option>
+                  <option value="Remote">Remote</option>
+                  <option value="OnSite">On-site</option>
+                  <option value="Hybrid">Hybrid</option>
                 </select>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  Location <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Kabul or Online"
-                  value={form.location}
-                  onChange={(e) => set('location', e.target.value)}
-                  className={inputClass}
-                />
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Location <span className="text-red-500">*</span></label>
+                <input type="text" placeholder="e.g. Kabul or Online" value={form.location} onChange={(e) => set('location', e.target.value)} className={inputClass} />
                 {errors.location && <p className="mt-1 text-xs text-red-500">{errors.location}</p>}
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  Deadline <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={form.deadline}
-                  onChange={(e) => set('deadline', e.target.value)}
-                  className={inputClass}
-                />
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Deadline <span className="text-red-500">*</span></label>
+                <input type="date" value={form.deadline} onChange={(e) => set('deadline', e.target.value)} className={inputClass} />
                 {errors.deadline && <p className="mt-1 text-xs text-red-500">{errors.deadline}</p>}
               </div>
             </div>
@@ -215,16 +202,8 @@ export default function AddOpportunityPage() {
 
             <div className="mb-4 flex flex-col gap-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  Description <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  rows={4}
-                  placeholder="Describe the opportunity in a few sentences..."
-                  value={form.description}
-                  onChange={(e) => set('description', e.target.value)}
-                  className={`${inputClass} resize-none`}
-                />
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Description <span className="text-red-500">*</span></label>
+                <textarea rows={4} placeholder="Describe the opportunity in a few sentences..." value={form.description} onChange={(e) => set('description', e.target.value)} className={`${inputClass} resize-none`} />
                 {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
               </div>
 
@@ -233,26 +212,12 @@ export default function AddOpportunityPage() {
                   Requirements
                   <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">(one per line)</span>
                 </label>
-                <textarea
-                  rows={3}
-                  placeholder="Basic React"
-                  value={form.requirements}
-                  onChange={(e) => set('requirements', e.target.value)}
-                  className={`${inputClass} resize-none`}
-                />
+                <textarea rows={3} placeholder="Basic React" value={form.requirements} onChange={(e) => set('requirements', e.target.value)} className={`${inputClass} resize-none`} />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  Apply link <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://..."
-                  value={form.applyLink}
-                  onChange={(e) => set('applyLink', e.target.value)}
-                  className={inputClass}
-                />
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Apply link <span className="text-red-500">*</span></label>
+                <input type="url" placeholder="https://..." value={form.applyLink} onChange={(e) => set('applyLink', e.target.value)} className={inputClass} />
                 {errors.applyLink && <p className="mt-1 text-xs text-red-500">{errors.applyLink}</p>}
               </div>
             </div>
@@ -290,10 +255,15 @@ export default function AddOpportunityPage() {
               </button>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                disabled={submitting}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
               >
-                <Send size={15} />
-                Submit opportunity
+                {submitting ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                ) : (
+                  <Send size={15} />
+                )}
+                {submitting ? 'Submitting...' : 'Submit opportunity'}
               </button>
             </div>
           </form>
