@@ -1,5 +1,5 @@
-import {createClient} from '@supabase/supabase-js';
-import {NextResponse} from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,43 +7,63 @@ const supabase = createClient(
 );
 
 export async function GET() {
-  const {data, error} = await supabase
+  const { data, error } = await supabase
     .from('Opportunity')
     .select('*')
-    .order('createdAt', {ascending: false});
+    .order('createdAt', { ascending: false });
 
-  if (error) return NextResponse.json({error: error.message}, {status: 500});
+  if (error) {
+    console.error('GET Error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
   return NextResponse.json(data);
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
+  try {
+    const body = await request.json();
+    console.log('📥 Received:', JSON.stringify(body, null, 2));
 
-  const payload = {
-    title: body.title,
-    organization: body.organization,
-    category: body.category,
-    location: body.location,
-    type: body.type,
-    deadline: body.deadline,
-    description: body.description,
-    requirements: body.requirements,
-    applyLink: body.applyLink,
-    tags: body.tags,
-    featured: body.featured ?? false,
-  };
+    if (body.deadline) {
+      body.deadline = new Date(body.deadline).toISOString();
+    }
 
-  console.log('POST payload:', payload);
+    if (typeof body.requirements === 'string') {
+      body.requirements = body.requirements.split('\n').filter(Boolean);
+    }
+    if (!Array.isArray(body.requirements)) {
+      body.requirements = [];
+    }
 
-  const {data, error} = await supabase
-    .from('Opportunity')
-    .insert(payload)
-    .select()
-    .single();
+    if (typeof body.tags === 'string') {
+      body.tags = body.tags.split(',').map((t: string) => t.trim()).filter(Boolean);
+    }
+    if (!Array.isArray(body.tags)) {
+      body.tags = [];
+    }
 
-  if (error) {
-    console.error('Supabase error:', error);
-    return NextResponse.json({error: error.message, details: error}, {status: 500});
+    console.log('📤 Final:', JSON.stringify(body, null, 2));
+
+    const { data, error } = await supabase
+      .from('Opportunity')
+      .insert(body)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Supabase Error:', error);
+      return NextResponse.json(
+        { error: error.message, details: error },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('❌ Server Error:', error);
+    return NextResponse.json(
+      { error: 'Internal Server Error', details: String(error) },
+      { status: 500 }
+    );
   }
-  return NextResponse.json(data);
 }
