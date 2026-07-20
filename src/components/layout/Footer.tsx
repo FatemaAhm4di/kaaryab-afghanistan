@@ -133,7 +133,12 @@ export default function Footer() {
         {/* Bottom */}
         <div className="flex flex-wrap items-center justify-between gap-4 py-5">
           <p className="text-xs text-white/30">
-            {t('copyright').replace('{year}', String(currentYear))}
+            {locale === 'fa' 
+              ? `© ${currentYear} کارجوی افغانستان. تمامی حقوق محفوظ است.`
+              : locale === 'ps'
+              ? `© ${currentYear} کارجوی افغانستان. ټول حقوق خوندي دي.`
+              : `© ${currentYear} KaarYab Afghanistan. All rights reserved.`
+            }
           </p>
           <div className="flex items-center gap-4">
             <span className="text-xs text-white/30 transition hover:text-white/60 cursor-pointer">{t('privacy')}</span>
