@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Briefcase, MapPin, Calendar, Tag } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type Opportunity = {
   id: string;
@@ -51,23 +52,24 @@ function OpportunitySkeleton() {
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const t = useTranslations('details');
   return (
     <main className="container-custom py-20">
       <div className="mx-auto max-w-md text-center">
         <div className="mb-6 text-6xl">😕</div>
-        <h2 className="text-2xl font-bold text-[#09637e]">Something went wrong</h2>
+        <h2 className="text-2xl font-bold text-[#09637e]">{t('error')}</h2>
         <p className="mt-2 text-gray-600">{message}</p>
         <button
           onClick={onRetry}
           className="mt-6 rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]"
         >
-          Try again
+          {t('retry')}
         </button>
         <Link
           href="/opportunities"
           className="mt-4 block text-sm text-[#09637e] transition hover:text-[#075a6b]"
         >
-          ← Back to opportunities
+          ← {t('back')}
         </Link>
       </div>
     </main>
@@ -77,8 +79,10 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 export default function OpportunityPage() {
   const params = useParams();
   const router = useRouter();
-  const locale = (params.locale as string) || 'fa';
+  const locale = (params.locale as string) || 'en';
   const id = params.id as string;
+  const t = useTranslations('details');
+  const common = useTranslations('common');
 
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,9 +95,9 @@ export default function OpportunityPage() {
       const res = await fetch(`/api/opportunities/${id}`);
       if (!res.ok) {
         if (res.status === 404) {
-          setError('Opportunity not found');
+          setError(t('notFound'));
         } else {
-          setError('Failed to load opportunity');
+          setError(t('errorMessage'));
         }
         return;
       }
@@ -110,50 +114,44 @@ export default function OpportunityPage() {
     fetchOpportunity();
   }, [id]);
 
-  // Loading
   if (loading) {
     return <OpportunitySkeleton />;
   }
 
-  // Error
   if (error) {
     return <ErrorState message={error} onRetry={fetchOpportunity} />;
   }
 
-  // Not found
   if (!opportunity) {
     return (
       <main className="container-custom py-20">
         <div className="mx-auto max-w-md text-center">
           <div className="mb-6 text-6xl">🔍</div>
-          <h2 className="text-2xl font-bold text-[#09637e]">Opportunity not found</h2>
+          <h2 className="text-2xl font-bold text-[#09637e]">{t('notFound')}</h2>
           <p className="mt-2 text-gray-600">
-            The opportunity youre looking for doesnt exist or has been removed.
+            {t('notFoundMessage')}
           </p>
           <Link
             href={`/${locale}/opportunities`}
             className="mt-6 inline-block rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]"
           >
-            Browse opportunities
+            {t('browse')}
           </Link>
         </div>
       </main>
     );
   }
 
-  // Success
   return (
     <main className="container-custom py-10">
-      {/* Back Button */}
       <button
         onClick={() => router.back()}
         className="mb-6 inline-flex items-center gap-2 text-sm text-[#09637e] transition hover:text-[#075a6b]"
       >
         <ArrowLeft size={16} />
-        Back
+        {common('back')}
       </button>
 
-      {/* Header */}
       <div className="mb-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -174,14 +172,13 @@ export default function OpportunityPage() {
         </div>
       </div>
 
-      {/* Badges */}
       <div className="mb-8 flex flex-wrap gap-2">
         <span className="rounded-full bg-[#ebf4f6] px-3 py-1 text-xs font-medium text-[#09637e]">
           {opportunity.type}
         </span>
         <span className="rounded-full bg-[#ebf4f6] px-3 py-1 text-xs font-medium text-[#09637e]">
           <Calendar size={12} className="inline mr-1" />
-          {new Date(opportunity.deadline).toLocaleDateString()}
+          {t('deadline')}: {new Date(opportunity.deadline).toLocaleDateString()}
         </span>
         {opportunity.tags?.map((tag) => (
           <span key={tag} className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
@@ -191,17 +188,15 @@ export default function OpportunityPage() {
         ))}
       </div>
 
-      {/* Description */}
       <section className="mb-8">
-        <h2 className="mb-3 text-xl font-semibold text-[#09637e]">Description</h2>
+        <h2 className="mb-3 text-xl font-semibold text-[#09637e]">{t('description')}</h2>
         <div className="rounded-2xl border border-[#d1eef2] bg-white p-6">
           <p className="text-gray-700 leading-relaxed">{opportunity.description}</p>
         </div>
       </section>
 
-      {/* Requirements */}
       <section className="mb-8">
-        <h2 className="mb-3 text-xl font-semibold text-[#09637e]">Requirements</h2>
+        <h2 className="mb-3 text-xl font-semibold text-[#09637e]">{t('requirements')}</h2>
         <div className="rounded-2xl border border-[#d1eef2] bg-white p-6">
           <ul className="list-disc pl-5 space-y-1.5 text-gray-700">
             {opportunity.requirements.map((item) => (
@@ -211,10 +206,9 @@ export default function OpportunityPage() {
         </div>
       </section>
 
-      {/* Apply Section */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#d1eef2] bg-white p-6">
         <div>
-          <p className="text-sm text-gray-500">Ready to apply?</p>
+          <p className="text-sm text-gray-500">{t('ready')}</p>
           <p className="font-medium text-[#09637e]">{opportunity.organization}</p>
         </div>
         <div className="flex gap-3">
@@ -224,13 +218,13 @@ export default function OpportunityPage() {
             rel="noreferrer"
             className="rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]"
           >
-            Apply Now →
+            {t('apply')} →
           </a>
           <Link
             href={`/${locale}/opportunities`}
             className="rounded-xl border border-[#d1eef2] px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
           >
-            Back
+            {common('back')}
           </Link>
         </div>
       </div>

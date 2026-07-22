@@ -25,6 +25,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${vazirmatn.variable} bg-[var(--color-background)] antialiased min-h-screen flex flex-col`}
+        suppressHydrationWarning
       >
         <ThemeProvider>
           <OpportunitiesProvider>

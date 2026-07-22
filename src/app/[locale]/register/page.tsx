@@ -9,6 +9,7 @@ import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {supabase} from '@/lib/supabase';
 import {Eye, EyeOff, UserPlus} from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 const schema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -25,8 +26,9 @@ type FormData = z.infer<typeof schema>;
 
 export default function RegisterPage() {
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] || 'fa';
+  const locale = pathname.split('/')[1] || 'en';
   const router = useRouter();
+  const t = useTranslations('auth');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
@@ -83,9 +85,9 @@ export default function RegisterPage() {
             <span className="h-2 w-2 rounded-full bg-[#088395] inline-block" />
             KaarYab
           </Link>
-          <h1 className="text-2xl font-extrabold text-[#09637e] mt-2">Create an account</h1>
+          <h1 className="text-2xl font-extrabold text-[#09637e] mt-2">{t('createAccount')}</h1>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-            Join KaarYab and discover opportunities
+            {t('registerSubtitle')}
           </p>
         </div>
 
@@ -100,7 +102,7 @@ export default function RegisterPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  First name
+                  {t('firstName')}
                 </label>
                 <input
                   type="text"
@@ -115,7 +117,7 @@ export default function RegisterPage() {
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  Last name
+                  {t('lastName')}
                 </label>
                 <input
                   type="text"
@@ -131,7 +133,7 @@ export default function RegisterPage() {
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                Email
+                {t('email')}
               </label>
               <input
                 type="email"
@@ -146,7 +148,7 @@ export default function RegisterPage() {
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                Password
+                {t('password')}
               </label>
               <div className="relative">
                 <input
@@ -170,7 +172,7 @@ export default function RegisterPage() {
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                Confirm password
+                {t('confirmPassword')}
               </label>
               <div className="relative">
                 <input
@@ -202,14 +204,14 @@ export default function RegisterPage() {
               ) : (
                 <UserPlus size={16} />
               )}
-              {loading ? 'Creating account...' : 'Create account'}
+              {loading ? t('creating') : t('register')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-[var(--color-text-secondary)]">
-            Already have an account?{' '}
+            {t('hasAccount')}{' '}
             <Link href={`/${locale}/login`} className="font-semibold text-[#09637e] hover:underline">
-              Sign in
+              {t('loginNow')}
             </Link>
           </p>
         </div>

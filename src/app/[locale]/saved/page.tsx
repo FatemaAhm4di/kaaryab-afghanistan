@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { Bookmark, ArrowRight, Building2, Clock, MapPin, BookmarkX, AlertCircle } from 'lucide-react';
 import { useSavedOpportunities } from '@/context/SavedOpportunitiesContext';
 import { useOpportunities } from '@/context/OpportunitiesContext';
+import { useTranslations } from 'next-intl';
 
 function SavedSkeleton() {
   return (
@@ -34,20 +35,21 @@ function SavedSkeleton() {
 }
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
+  const t = useTranslations('saved');
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 px-6 py-20 text-center">
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-100 text-red-500">
         <AlertCircle size={32} />
       </div>
-      <h2 className="text-xl font-bold text-red-700">Failed to load saved opportunities</h2>
+      <h2 className="text-xl font-bold text-red-700">{t('errorTitle')}</h2>
       <p className="mt-2 max-w-sm text-sm text-red-600">
-        There was a problem loading your saved opportunities. Please try again.
+        {t('errorMessage')}
       </p>
       <button
         onClick={onRetry}
         className="mt-6 rounded-xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
       >
-        Try again
+        {t('retry')}
       </button>
     </div>
   );
@@ -55,48 +57,13 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 
 export default function SavedPage() {
   const { savedIds, toggleSave } = useSavedOpportunities();
-  const { opportunities, loading, error, refreshOpportunities } = useOpportunities();
+  const { opportunities, error, refreshOpportunities } = useOpportunities();
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] || 'fa';
+  const locale = pathname.split('/')[1] || 'en';
+  const t = useTranslations('saved');
+  const common = useTranslations('common');
 
-  const savedOpportunities = !loading
-    ? opportunities.filter((o) => savedIds.includes(o.id))
-    : [];
-
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-[var(--color-background)]">
-        <section className="container-custom py-12">
-          <div className="mb-10">
-            <div className="mb-6 flex justify-center">
-              <Image
-                src="/illustrations/illustration-saved.svg"
-                alt="Saved opportunities"
-                width={260}
-                height={200}
-                className="w-[200px] md:w-[260px]"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-3 py-1 text-xs font-medium text-[#09637e]">
-                  <Bookmark size={12} />
-                  Loading...
-                </div>
-                <h1 className="text-3xl font-extrabold text-[var(--color-primary-dark)] md:text-4xl">
-                  Saved Opportunities
-                </h1>
-                <p className="mt-2 text-[var(--color-text-secondary)]">
-                  Opportunities you bookmarked for later.
-                </p>
-              </div>
-            </div>
-          </div>
-          <SavedSkeleton />
-        </section>
-      </main>
-    );
-  }
+  const savedOpportunities = opportunities.filter((o) => savedIds.includes(o.id));
 
   if (error) {
     return (
@@ -125,20 +92,20 @@ export default function SavedPage() {
             <div>
               <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-3 py-1 text-xs font-medium text-[#09637e]">
                 <Bookmark size={12} />
-                {savedOpportunities.length} saved
+                {savedOpportunities.length} {t('saved')}
               </div>
               <h1 className="text-3xl font-extrabold text-[var(--color-primary-dark)] md:text-4xl">
-                Saved Opportunities
+                {t('title')}
               </h1>
               <p className="mt-2 text-[var(--color-text-secondary)]">
-                Opportunities you bookmarked for later.
+                {t('subtitle')}
               </p>
             </div>
             <Link
               href={`/${locale}/opportunities`}
               className="hidden items-center gap-2 rounded-xl border border-[#a8d8df] bg-white px-5 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2] md:flex"
             >
-              Browse More
+              {t('browseMore')}
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -150,16 +117,16 @@ export default function SavedPage() {
               <Bookmark size={32} />
             </div>
             <h2 className="text-xl font-bold text-[var(--color-primary-dark)]">
-              No saved opportunities yet
+              {t('empty')}
             </h2>
             <p className="mt-2 max-w-sm text-sm text-[var(--color-text-secondary)]">
-              Browse opportunities and click the bookmark icon to save them here for later.
+              {t('emptyMessage')}
             </p>
             <Link
               href={`/${locale}/opportunities`}
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
             >
-              Explore Opportunities
+              {t('explore')}
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -183,7 +150,7 @@ export default function SavedPage() {
                     type="button"
                     onClick={() => toggleSave(opportunity.id)}
                     className="rounded-xl p-2 text-cyan-700 transition hover:bg-red-50 hover:text-red-500"
-                    title="Remove from saved"
+                    title={t('remove')}
                   >
                     <BookmarkX size={20} />
                   </button>
@@ -199,7 +166,7 @@ export default function SavedPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock size={15} />
-                    Deadline: {new Date(opportunity.deadline).toLocaleDateString()}
+                    {t('deadline')}: {new Date(opportunity.deadline).toLocaleDateString()}
                   </div>
                 </div>
                 <div className="mt-6 flex items-center justify-between">
@@ -210,7 +177,7 @@ export default function SavedPage() {
                     href={`/${locale}/opportunities/${opportunity.id}`}
                     className="flex items-center gap-1.5 text-sm font-semibold text-cyan-700 transition hover:gap-2.5"
                   >
-                    View
+                    {common('view')}
                     <ArrowRight size={16} />
                   </Link>
                 </div>
@@ -225,7 +192,7 @@ export default function SavedPage() {
               href={`/${locale}/opportunities`}
               className="inline-flex items-center gap-2 rounded-xl border border-[#a8d8df] bg-white px-5 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
             >
-              Browse More
+              {t('browseMore')}
               <ArrowRight size={16} />
             </Link>
           </div>

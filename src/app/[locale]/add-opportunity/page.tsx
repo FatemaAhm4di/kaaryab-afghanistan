@@ -4,14 +4,17 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { Plus, Send, X } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 const inputClass =
   'w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 text-sm text-[#1f2937] outline-none transition focus:border-[#09637e] focus:ring-2 focus:ring-[#d1eef2]';
 
 export default function AddOpportunityPage() {
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] || 'fa';
+  const locale = pathname.split('/')[1] || 'en';
   const router = useRouter();
+  const t = useTranslations('add');
+  const common = useTranslations('common');
 
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -44,21 +47,20 @@ export default function AddOpportunityPage() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.title) e.title = 'Title is required';
-    if (!form.organization) e.organization = 'Organization is required';
-    if (!form.location) e.location = 'Location is required';
-    if (!form.deadline) e.deadline = 'Deadline is required';
-    if (!form.description) e.description = 'Description is required';
-    if (!form.applyLink) e.applyLink = 'Apply link is required';
+    if (!form.title) e.title = t('titleRequired');
+    if (!form.organization) e.organization = t('orgRequired');
+    if (!form.location) e.location = t('locationRequired');
+    if (!form.deadline) e.deadline = t('deadlineRequired');
+    if (!form.description) e.description = t('descRequired');
+    if (!form.applyLink) e.applyLink = t('applyRequired');
     if (form.applyLink && !form.applyLink.startsWith('http'))
-      e.applyLink = 'Must be a valid URL starting with http';
+      e.applyLink = t('applyInvalid');
     return e;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // اعتبارسنجی
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -68,7 +70,6 @@ export default function AddOpportunityPage() {
     setSubmitting(true);
 
     try {
-      // ساخت دیتا برای ارسال
       const opportunityData = {
         title: form.title,
         organization: form.organization,
@@ -83,9 +84,6 @@ export default function AddOpportunityPage() {
         featured: false,
       };
 
-      console.log('📤 Sending:', opportunityData);
-
-      // ارسال به API
       const response = await fetch('/api/opportunities', {
         method: 'POST',
         headers: {
@@ -95,7 +93,6 @@ export default function AddOpportunityPage() {
       });
 
       const result = await response.json();
-      console.log('📨 Response:', result);
 
       if (!response.ok) {
         throw new Error(result.error || result.details || 'Failed to create');
@@ -107,11 +104,10 @@ export default function AddOpportunityPage() {
     } catch (error) {
       console.error('❌ Error:', error);
       setSubmitting(false);
-      alert('❌ خطا در ایجاد فرصت!\n' + error);
+      alert(t('errorMessage') + '\n' + error);
     }
   };
 
-  // صفحه موفقیت
   if (submitted) {
     return (
       <main className="min-h-screen bg-[var(--color-background)]">
@@ -124,15 +120,15 @@ export default function AddOpportunityPage() {
               height={160}
               className="mb-6"
             />
-            <h2 className="mb-2 text-xl font-bold text-[#09637e]">✅ Opportunity submitted!</h2>
+            <h2 className="mb-2 text-xl font-bold text-[#09637e]">{t('success')}</h2>
             <p className="mb-6 max-w-xs text-sm text-[var(--color-text-secondary)]">
-              Thank you for sharing. It will be reviewed shortly.
+              {t('successMessage')}
             </p>
             <button
               onClick={() => router.push(`/${locale}/opportunities`)}
               className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
             >
-              Browse opportunities →
+              {t('browseButton')} →
             </button>
           </div>
         </section>
@@ -140,12 +136,10 @@ export default function AddOpportunityPage() {
     );
   }
 
-  // صفحه اصلی فرم
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
       <section className="container-custom py-16">
         <div className="mx-auto max-w-2xl">
-          {/* هدر */}
           <div className="mb-8 flex flex-col items-center text-center">
             <Image
               src="/illustrations/illustration-add-opportunity.svg"
@@ -156,35 +150,33 @@ export default function AddOpportunityPage() {
             />
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-4 py-2 text-sm font-medium text-[#09637e]">
               <Plus size={14} />
-              New listing
+              {t('badge')}
             </div>
             <h1 className="mb-3 text-3xl font-extrabold text-[#09637e] md:text-4xl">
-              Add an opportunity
+              {t('title')}
             </h1>
             <p className="text-[var(--color-text-secondary)]">
-              Share a job, scholarship, internship, or remote work opportunity.
+              {t('subtitle')}
             </p>
           </div>
 
-          {/* فرم */}
           <form onSubmit={handleSubmit} className="rounded-2xl border border-[#d1eef2] bg-white p-8">
             <p className="mb-6 text-xs text-[var(--color-text-secondary)]">
-              <span className="text-red-500">*</span> Required fields
+              <span className="text-red-500">*</span> {t('requiredFields')}
             </p>
 
-            {/* بخش اطلاعات پایه */}
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
-              Basic information
+              {t('basicInfo')}
             </p>
 
             <div className="mb-4 grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  Title <span className="text-red-500">*</span>
+                  {t('titleLabel')} <span className="text-red-500">*</span>
                 </label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Frontend Developer Intern" 
+                  placeholder={t('titlePlaceholder')}
                   value={form.title} 
                   onChange={(e) => set('title', e.target.value)} 
                   className={inputClass} 
@@ -194,11 +186,11 @@ export default function AddOpportunityPage() {
 
               <div className="md:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  Organization <span className="text-red-500">*</span>
+                  {t('organizationLabel')} <span className="text-red-500">*</span>
                 </label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Kabul Tech Community" 
+                  placeholder={t('orgPlaceholder')}
                   value={form.organization} 
                   onChange={(e) => set('organization', e.target.value)} 
                   className={inputClass} 
@@ -207,32 +199,32 @@ export default function AddOpportunityPage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Category <span className="text-red-500">*</span></label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('categoryLabel')} <span className="text-red-500">*</span></label>
                 <select value={form.category} onChange={(e) => set('category', e.target.value)} className={inputClass}>
-                  <option value="Job">Job</option>
-                  <option value="Internship">Internship</option>
-                  <option value="Scholarship">Scholarship</option>
-                  <option value="Remote">Remote</option>
-                  <option value="Training">Training</option>
-                  <option value="Volunteer">Volunteer</option>
-                  <option value="Course">Course</option>
+                  <option value="Job">{common('job')}</option>
+                  <option value="Internship">{common('internship')}</option>
+                  <option value="Scholarship">{common('scholarship')}</option>
+                  <option value="Remote">{common('remote')}</option>
+                  <option value="Training">{common('training')}</option>
+                  <option value="Volunteer">{common('volunteer')}</option>
+                  <option value="Course">{common('course')}</option>
                 </select>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Type <span className="text-red-500">*</span></label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('typeLabel')} <span className="text-red-500">*</span></label>
                 <select value={form.type} onChange={(e) => set('type', e.target.value)} className={inputClass}>
-                  <option value="Remote">Remote</option>
-                  <option value="OnSite">On-site</option>
-                  <option value="Hybrid">Hybrid</option>
+                  <option value="Remote">{common('remote')}</option>
+                  <option value="OnSite">{common('onSite')}</option>
+                  <option value="Hybrid">{common('hybrid')}</option>
                 </select>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Location <span className="text-red-500">*</span></label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('locationLabel')} <span className="text-red-500">*</span></label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Kabul or Online" 
+                  placeholder={t('locationPlaceholder')}
                   value={form.location} 
                   onChange={(e) => set('location', e.target.value)} 
                   className={inputClass} 
@@ -241,7 +233,7 @@ export default function AddOpportunityPage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Deadline <span className="text-red-500">*</span></label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('deadlineLabel')} <span className="text-red-500">*</span></label>
                 <input 
                   type="date" 
                   value={form.deadline} 
@@ -252,17 +244,16 @@ export default function AddOpportunityPage() {
               </div>
             </div>
 
-            {/* بخش جزئیات */}
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
-              Details
+              {t('details')}
             </p>
 
             <div className="mb-4 flex flex-col gap-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Description <span className="text-red-500">*</span></label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('descriptionLabel')} <span className="text-red-500">*</span></label>
                 <textarea 
                   rows={4} 
-                  placeholder="Describe the opportunity..." 
+                  placeholder={t('descPlaceholder')}
                   value={form.description} 
                   onChange={(e) => set('description', e.target.value)} 
                   className={`${inputClass} resize-none`} 
@@ -272,11 +263,12 @@ export default function AddOpportunityPage() {
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  Requirements <span className="text-xs font-normal text-[var(--color-text-secondary)]">(one per line)</span>
+                  {t('requirementsLabel')}
+                  <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">({t('requirementsHint')})</span>
                 </label>
                 <textarea 
                   rows={3} 
-                  placeholder="React" 
+                  placeholder={t('requirementsPlaceholder')}
                   value={form.requirements} 
                   onChange={(e) => set('requirements', e.target.value)} 
                   className={`${inputClass} resize-none`} 
@@ -284,10 +276,10 @@ export default function AddOpportunityPage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Apply link <span className="text-red-500">*</span></label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('applyLinkLabel')} <span className="text-red-500">*</span></label>
                 <input 
                   type="url" 
-                  placeholder="https://..." 
+                  placeholder={t('applyPlaceholder')}
                   value={form.applyLink} 
                   onChange={(e) => set('applyLink', e.target.value)} 
                   className={inputClass} 
@@ -296,9 +288,8 @@ export default function AddOpportunityPage() {
               </div>
             </div>
 
-            {/* بخش تگ‌ها */}
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
-              Tags
+              {t('tags')}
             </p>
 
             <div className="mb-8 flex flex-wrap gap-2 rounded-xl border border-[#d1eef2] bg-white p-3">
@@ -312,7 +303,7 @@ export default function AddOpportunityPage() {
               ))}
               <input
                 type="text"
-                placeholder="Add a tag and press Enter..."
+                placeholder={t('tagsPlaceholder')}
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
@@ -320,14 +311,13 @@ export default function AddOpportunityPage() {
               />
             </div>
 
-            {/* دکمه‌ها */}
             <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => router.back()}
                 className="rounded-xl border border-[#d1eef2] bg-white px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 type="submit"
@@ -339,7 +329,7 @@ export default function AddOpportunityPage() {
                 ) : (
                   <Send size={15} />
                 )}
-                {submitting ? 'Submitting...' : 'Submit opportunity'}
+                {submitting ? t('submitting') : t('submit')}
               </button>
             </div>
           </form>

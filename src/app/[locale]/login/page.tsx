@@ -9,6 +9,7 @@ import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {supabase} from '@/lib/supabase';
 import {Eye, EyeOff, LogIn} from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 const schema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -19,8 +20,10 @@ type FormData = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] || 'fa';
+  const locale = pathname.split('/')[1] || 'en';
   const router = useRouter();
+  const t = useTranslations('auth');
+  const common = useTranslations('common');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -68,9 +71,9 @@ export default function LoginPage() {
             <span className="h-2 w-2 rounded-full bg-[#088395] inline-block" />
             KaarYab
           </Link>
-          <h1 className="text-2xl font-extrabold text-[#09637e] mt-2">Welcome back</h1>
+          <h1 className="text-2xl font-extrabold text-[#09637e] mt-2">{t('welcomeBack')}</h1>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-            Sign in to your account to continue
+            {t('loginSubtitle')}
           </p>
         </div>
 
@@ -84,7 +87,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                Email
+                {t('email')}
               </label>
               <input
                 type="email"
@@ -99,7 +102,7 @@ export default function LoginPage() {
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                Password
+                {t('password')}
               </label>
               <div className="relative">
                 <input
@@ -131,14 +134,14 @@ export default function LoginPage() {
               ) : (
                 <LogIn size={16} />
               )}
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? t('signingIn') : t('login')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-[var(--color-text-secondary)]">
-            Don`t have an account?{' '}
+            {t('noAccount')}{' '}
             <Link href={`/${locale}/register`} className="font-semibold text-[#09637e] hover:underline">
-              Create one
+              {t('registerNow')}
             </Link>
           </p>
         </div>

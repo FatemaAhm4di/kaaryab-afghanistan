@@ -10,6 +10,7 @@ import {supabase} from '@/lib/supabase';
 import {User, Save, ArrowLeft, Pencil, LogOut, Camera, X} from 'lucide-react';
 import Link from 'next/link';
 import {useProfile} from '@/context/ProfileContext';
+import { useTranslations } from 'next-intl';
 
 const schema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -39,8 +40,10 @@ const months = [
 
 export default function ProfilePage() {
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] || 'fa';
+  const locale = pathname.split('/')[1] || 'en';
   const router = useRouter();
+  const t = useTranslations('profile');
+  const common = useTranslations('common');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {refreshProfile} = useProfile();
 
@@ -193,14 +196,14 @@ export default function ProfilePage() {
         <div className="mb-8 flex items-center justify-between">
           <Link href={`/${locale}`} className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[#09637e]">
             <ArrowLeft size={16} />
-            Back
+            {common('back')}
           </Link>
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-500 transition hover:bg-red-50"
           >
             <LogOut size={15} />
-            Sign out
+            {t('signOut')}
           </button>
         </div>
 
@@ -242,7 +245,7 @@ export default function ProfilePage() {
             <h1 className="text-2xl font-extrabold text-[#09637e]">
               {profileData.firstName && profileData.lastName
                 ? `${profileData.firstName} ${profileData.lastName}`
-                : 'My Profile'}
+                : t('myProfile')}
             </h1>
             {profileData.title && (
               <p className="mt-1 text-sm font-medium text-[#088395]">{profileData.title}</p>
@@ -255,14 +258,14 @@ export default function ProfilePage() {
                 className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[#d1eef2] bg-white px-4 py-2 text-sm font-medium text-[#09637e] transition hover:bg-[#d1eef2]"
               >
                 <Pencil size={14} />
-                Edit profile
+                {t('editProfile')}
               </button>
             )}
           </div>
 
           {success && (
             <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600">
-              Profile saved successfully!
+              {t('saveSuccess')}
             </div>
           )}
 
@@ -275,124 +278,126 @@ export default function ProfilePage() {
           <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl border border-[#d1eef2] bg-white p-8">
 
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
-              Basic information
+              {t('basicInfo')}
             </p>
 
             <div className="mb-6 grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">First name <span className="text-red-500">*</span></label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('firstName')} <span className="text-red-500">*</span></label>
                 {editMode ? (
                   <>
                     <input type="text" placeholder="Fatema" {...register('firstName')} className={inputClass} />
                     {errors.firstName && <p className="mt-1 text-xs text-red-500">{errors.firstName.message}</p>}
                   </>
                 ) : (
-                  <div className={readonlyClass}>{profileData.firstName || 'Not set'}</div>
+                  <div className={readonlyClass}>{profileData.firstName || t('notSet')}</div>
                 )}
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Last name <span className="text-red-500">*</span></label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('lastName')} <span className="text-red-500">*</span></label>
                 {editMode ? (
                   <>
                     <input type="text" placeholder="Ahmadi" {...register('lastName')} className={inputClass} />
                     {errors.lastName && <p className="mt-1 text-xs text-red-500">{errors.lastName.message}</p>}
                   </>
                 ) : (
-                  <div className={readonlyClass}>{profileData.lastName || 'Not set'}</div>
+                  <div className={readonlyClass}>{profileData.lastName || t('notSet')}</div>
                 )}
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Date of birth</label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('dob')}</label>
                 {editMode ? (
                   <div className="grid grid-cols-3 gap-2">
-                    <input type="number" placeholder="Day" min="1" max="31" {...register('birthDay')} className={inputClass} />
+                    <input type="number" placeholder={t('day')} min="1" max="31" {...register('birthDay')} className={inputClass} />
                     <select {...register('birthMonth')} className={inputClass}>
-                      <option value="">Month</option>
+                      <option value="">{t('month')}</option>
                       {months.map((m, i) => (
                         <option key={m} value={i + 1}>{m}</option>
                       ))}
                     </select>
-                    <input type="number" placeholder="Year" min="1900" max="2025" {...register('birthYear')} className={inputClass} />
+                    <input type="number" placeholder={t('year')} min="1900" max="2025" {...register('birthYear')} className={inputClass} />
                   </div>
                 ) : (
                   <div className={readonlyClass}>
                     {profileData.birthDay && profileData.birthMonth && profileData.birthYear
                       ? `${profileData.birthDay} ${months[parseInt(profileData.birthMonth) - 1]} ${profileData.birthYear}`
-                      : 'Not set'}
+                      : t('notSet')}
                   </div>
                 )}
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Gender</label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('gender')}</label>
                 {editMode ? (
                   <select {...register('gender')} className={inputClass}>
-                    <option value="PreferNotToSay">Prefer not to say</option>
-                    <option value="Female">Female</option>
-                    <option value="Male">Male</option>
+                    <option value="PreferNotToSay">{t('preferNot')}</option>
+                    <option value="Female">{t('female')}</option>
+                    <option value="Male">{t('male')}</option>
                   </select>
                 ) : (
-                  <div className={readonlyClass}>{profileData.gender === 'PreferNotToSay' ? 'Prefer not to say' : profileData.gender || 'Not set'}</div>
+                  <div className={readonlyClass}>
+                    {profileData.gender === 'PreferNotToSay' ? t('preferNot') : profileData.gender || t('notSet')}
+                  </div>
                 )}
               </div>
             </div>
 
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
-              Professional information
+              {t('professionalInfo')}
             </p>
 
             <div className="mb-6 grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Title</label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('title')}</label>
                 {editMode ? (
-                  <input type="text" placeholder="Frontend Developer" {...register('title')} className={inputClass} />
+                  <input type="text" placeholder={t('titlePlaceholder')} {...register('title')} className={inputClass} />
                 ) : (
-                  <div className={readonlyClass}>{profileData.title || 'Not set'}</div>
+                  <div className={readonlyClass}>{profileData.title || t('notSet')}</div>
                 )}
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">Job</label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('job')}</label>
                 {editMode ? (
-                  <input type="text" placeholder="UI Designer at KaarYab" {...register('job')} className={inputClass} />
+                  <input type="text" placeholder={t('jobPlaceholder')} {...register('job')} className={inputClass} />
                 ) : (
-                  <div className={readonlyClass}>{profileData.job || 'Not set'}</div>
+                  <div className={readonlyClass}>{profileData.job || t('notSet')}</div>
                 )}
               </div>
             </div>
 
             <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
-              About
+              {t('about')}
             </p>
 
             <div className="mb-6 flex flex-col gap-4">
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  Bio <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">(max 160 characters)</span>
+                  {t('bio')} <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">({t('bioHint')})</span>
                 </label>
                 {editMode ? (
                   <>
-                    <input type="text" placeholder="A short bio about yourself..." {...register('bio')} className={inputClass} />
+                    <input type="text" placeholder={t('bioPlaceholder')} {...register('bio')} className={inputClass} />
                     {errors.bio && <p className="mt-1 text-xs text-red-500">{errors.bio.message}</p>}
                   </>
                 ) : (
-                  <div className={readonlyClass}>{profileData.bio || 'Not set'}</div>
+                  <div className={readonlyClass}>{profileData.bio || t('notSet')}</div>
                 )}
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  About <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">(max 500 characters)</span>
+                  {t('aboutLabel')} <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">({t('aboutHint')})</span>
                 </label>
                 {editMode ? (
                   <>
-                    <textarea rows={4} placeholder="Tell more about yourself..." {...register('about')} className={`${inputClass} resize-none`} />
+                    <textarea rows={4} placeholder={t('aboutPlaceholder')} {...register('about')} className={`${inputClass} resize-none`} />
                     {errors.about && <p className="mt-1 text-xs text-red-500">{errors.about.message}</p>}
                   </>
                 ) : (
-                  <div className={`${readonlyClass} min-h-[100px]`}>{profileData.about || 'Not set'}</div>
+                  <div className={`${readonlyClass} min-h-[100px]`}>{profileData.about || t('notSet')}</div>
                 )}
               </div>
             </div>
@@ -405,7 +410,7 @@ export default function ProfilePage() {
                   className="inline-flex items-center gap-2 rounded-xl border border-[#d1eef2] bg-white px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
                 >
                   <X size={15} />
-                  Cancel
+                  {common('cancel')}
                 </button>
                 <button
                   type="submit"
@@ -417,7 +422,7 @@ export default function ProfilePage() {
                   ) : (
                     <Save size={15} />
                   )}
-                  {saving ? 'Saving...' : 'Save profile'}
+                  {saving ? t('saving') : t('saveProfile')}
                 </button>
               </div>
             )}
