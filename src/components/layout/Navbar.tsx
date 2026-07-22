@@ -1,18 +1,18 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import {useState, useEffect, useRef} from 'react';
 import Link from 'next/link';
-import { 
+import {
   Sun, Moon, Globe, Menu, X, Bookmark, Home, Plus, User, LogOut, LogIn,
-  LayoutDashboard, Briefcase, Info, Phone, FileText
+  LayoutDashboard, Briefcase, Info, Phone, FileText, ChevronRight
 } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { supabase } from '@/lib/supabase';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
-import { useProfile } from '@/context/ProfileContext';
-import { useTheme } from '@/context/ThemeContext';
+import {usePathname, useRouter} from 'next/navigation';
+import {useTranslations} from 'next-intl';
+import {supabase} from '@/lib/supabase';
+import type {User as SupabaseUser} from '@supabase/supabase-js';
+import {useProfile} from '@/context/ProfileContext';
+import {useTheme} from '@/context/ThemeContext';
 
 type ProfileType = {
   firstName: string | null;
@@ -21,61 +21,89 @@ type ProfileType = {
   gender: string | null;
 };
 
-function Avatar({ profile, avatarSrc }: { profile: ProfileType | null; avatarSrc: string | null }) {
+function Avatar({profile, avatarSrc, size = 32}: {profile: ProfileType | null; avatarSrc: string | null; size?: number}) {
   return (
-    <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-[#09637e]">
+    <div
+      style={{width: size, height: size}}
+      className="overflow-hidden rounded-full border-2 border-[#09637e] shrink-0"
+    >
       {avatarSrc ? (
-        <Image src={avatarSrc} alt="Avatar" width={32} height={32} className="h-full w-full object-cover" />
+        <Image src={avatarSrc} alt="Avatar" width={size} height={size} className="h-full w-full object-cover" />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-[#d1eef2] text-xs font-bold text-[#09637e]">
-          {profile?.firstName?.[0]?.toUpperCase() ?? <User size={16} />}
+          {profile?.firstName?.[0]?.toUpperCase() ?? <User size={size * 0.5} />}
         </div>
       )}
     </div>
   );
 }
 
+function Tooltip({label, children}: {label: string; children: React.ReactNode}) {
+  return (
+    <div className="relative group/tooltip">
+      {children}
+      <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50 hidden group-hover/tooltip:block">
+        <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap shadow-lg">
+          {label}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Navbar() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
-  const { profile, refreshProfile } = useProfile();
-  const { theme, toggleTheme } = useTheme();
+  const {profile, refreshProfile} = useProfile();
+  const {theme, toggleTheme} = useTheme();
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'en';
   const router = useRouter();
+  const langRef = useRef<HTMLDivElement>(null);
+  const isDark = theme === 'dark';
 
   const t = useTranslations('nav');
   const common = useTranslations('common');
 
   const languages = [
-    { code: 'en', label: 'English' },
-    { code: 'fa', label: 'فارسی' },
-    { code: 'ps', label: 'پښتو' },
+    {code: 'en', label: 'English', flag: '🇺🇸'},
+    {code: 'fa', label: 'فارسی', flag: '🇦🇫'},
+    {code: 'ps', label: 'پښتو', flag: '🇦🇫'},
   ];
 
   const changeLanguage = (lang: string) => {
-    const newPathname = pathname.replace(`/${locale}`, `/${lang}`);
-    router.push(newPathname);
+    const segments = pathname.split('/');
+    segments[1] = lang;
+    router.push(segments.join('/'));
     setLangOpen(false);
+    setMobileOpen(false);
   };
 
   useEffect(() => {
     const loadUser = async () => {
-      const { data } = await supabase.auth.getUser();
+      const {data} = await supabase.auth.getUser();
       setUser(data.user);
       if (data.user) await refreshProfile();
     };
-
     loadUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const {data: {subscription}} = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       await refreshProfile();
     });
-
     return () => subscription.unsubscribe();
   }, [refreshProfile]);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -92,117 +120,236 @@ export default function Navbar() {
     : null;
 
   const navItems = [
-    { href: '', label: t('home'), icon: Home },
-    { href: '/opportunities', label: t('opportunities'), icon: Briefcase },
-    { href: '/saved', label: t('saved'), icon: Bookmark },
-    { href: '/dashboard', label: t('dashboard'), icon: LayoutDashboard },
-    { href: '/cv-builder', label: 'CV Builder', icon: FileText },
-    { href: '/about', label: t('about'), icon: Info },
-    { href: '/contact', label: t('contact'), icon: Phone },
+    {href: '', label: t('home'), icon: Home},
+    {href: '/opportunities', label: t('opportunities'), icon: Briefcase},
+    {href: '/saved', label: t('saved'), icon: Bookmark},
+    {href: '/dashboard', label: t('dashboard'), icon: LayoutDashboard},
+    {href: '/cv-builder', label: 'CV Builder', icon: FileText},
+    {href: '/about', label: t('about'), icon: Info},
+    {href: '/contact', label: t('contact'), icon: Phone},
   ];
 
   const isActive = (path: string) =>
     path === ''
       ? pathname === `/${locale}` || pathname === `/${locale}/`
-      : pathname.startsWith(`/${locale}/${path}`);
+      : pathname.startsWith(`/${locale}${path}`);
 
-  const iconBtn =
-    'w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-300 hover:bg-[#d1eef2] hover:text-[#09637e] border border-transparent hover:border-[#a8d8df] transition-colors';
+  const sidebarBg = isDark ? 'rgba(15,23,42,0.98)' : 'rgba(235,244,246,0.98)';
+  const borderColor = isDark ? '#1e3a4a' : '#d1eef2';
+  const textColor = isDark ? '#cbd5e1' : '#4b5563';
+  const activeColor = '#09637e';
+  const activeBg = isDark ? '#1e3a4a' : '#d1eef2';
+  const hoverBg = isDark ? '#1e3a4a' : '#d1eef2';
+
+  const NavItem = ({href, label, icon: Icon, onClick}: {href: string; label: string; icon: React.ElementType; onClick?: () => void}) => {
+    const active = isActive(href);
+    return (
+      <Link
+        href={`/${locale}${href}`}
+        onClick={onClick}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: sidebarExpanded ? '12px' : '0',
+          justifyContent: sidebarExpanded ? 'flex-start' : 'center',
+          padding: '10px 12px',
+          borderRadius: '12px',
+          fontSize: '14px',
+          fontWeight: 500,
+          transition: 'all 0.2s ease',
+          backgroundColor: active ? activeBg : 'transparent',
+          color: active ? activeColor : textColor,
+          textDecoration: 'none',
+        }}
+        onMouseEnter={(e) => {
+          if (!active) {
+            (e.currentTarget as HTMLElement).style.backgroundColor = hoverBg;
+            (e.currentTarget as HTMLElement).style.color = activeColor;
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!active) {
+            (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+            (e.currentTarget as HTMLElement).style.color = textColor;
+          }
+        }}
+      >
+        <Icon size={20} style={{flexShrink: 0}} />
+        {sidebarExpanded && <span style={{whiteSpace: 'nowrap', overflow: 'hidden'}}>{label}</span>}
+      </Link>
+    );
+  };
 
   return (
     <>
-      {/* Mobile Header */}
-      <header className="sticky top-0 z-40 border-b border-[#d1eef2] dark:border-gray-700 bg-[rgba(235,244,246,0.85)] dark:bg-[rgba(15,23,42,0.85)] backdrop-blur-xl shadow-sm md:hidden">
+      {/* ====== MOBILE HEADER ====== */}
+      <header
+        className="md:hidden sticky top-0 z-40 backdrop-blur-xl shadow-sm"
+        style={{
+          background: sidebarBg,
+          borderBottom: `1px solid ${borderColor}`,
+        }}
+      >
         <div className="px-4 h-[60px] flex items-center justify-between">
-          <button onClick={() => setIsSidebarOpen(true)} className={iconBtn}>
+          <button
+            onClick={() => setMobileOpen(true)}
+            style={{color: textColor}}
+            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-[#d1eef2] transition"
+          >
             <Menu size={22} />
           </button>
 
-          <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-lg text-[#09637e] tracking-tight">
+          <Link
+            href={`/${locale}`}
+            className="flex items-center gap-2 font-bold text-lg tracking-tight"
+            style={{color: activeColor}}
+          >
             <span className="w-2 h-2 rounded-full bg-[#088395] inline-block" />
             KaarYab
           </Link>
 
           <div className="flex items-center gap-1">
-            <button onClick={toggleTheme} className={iconBtn}>
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            <button
+              onClick={toggleTheme}
+              style={{color: textColor}}
+              className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-[#d1eef2] transition"
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <Link href={`/${locale}/profile`} className={iconBtn}>
-              <Avatar profile={profile} avatarSrc={avatarSrc} />
+            <Link href={`/${locale}/profile`} className="flex items-center justify-center w-9 h-9">
+              <Avatar profile={profile} avatarSrc={avatarSrc} size={30} />
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:w-[72px] md:z-50 md:border-r md:border-[#d1eef2] md:dark:border-gray-700 md:bg-[rgba(235,244,246,0.95)] md:dark:bg-[rgba(15,23,42,0.95)] md:backdrop-blur-xl md:shadow-sm md:transition-all md:duration-300 hover:md:w-[220px] group/sidebar">
-        <div className="flex flex-col items-center h-full py-4">
-          {/* Logo */}
-          <Link 
-            href={`/${locale}`} 
-            className="flex items-center justify-center w-full mb-6 px-2 group-hover/sidebar:justify-start"
-          >
-            <div className="flex items-center gap-2 font-bold text-lg text-[#09637e] tracking-tight">
-              <span className="w-2 h-2 rounded-full bg-[#088395] inline-block shrink-0" />
-              <span className="hidden group-hover/sidebar:inline">KaarYab</span>
-              <span className="inline group-hover/sidebar:hidden text-xl">K</span>
-            </div>
-          </Link>
+      {/* ====== DESKTOP SIDEBAR ====== */}
+      <aside
+        className="hidden md:flex flex-col fixed inset-y-0 left-0 z-50 transition-all duration-300"
+        style={{
+          width: sidebarExpanded ? '220px' : '68px',
+          background: sidebarBg,
+          borderRight: `1px solid ${borderColor}`,
+          backdropFilter: 'blur(20px)',
+        }}
+        onMouseEnter={() => setSidebarExpanded(true)}
+        onMouseLeave={() => {setSidebarExpanded(false); setLangOpen(false);}}
+      >
+        <div className="flex flex-col h-full py-4">
 
-          {/* Navigation */}
-          <nav className="flex-1 w-full px-2 space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={`/${locale}${item.href}`}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                    ${active 
-                      ? 'bg-[#d1eef2] dark:bg-gray-700 text-[#09637e] dark:text-[#088395]' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-[#d1eef2] dark:hover:bg-gray-700 hover:text-[#09637e] dark:hover:text-[#088395]'
-                    }
-                    justify-center group-hover/sidebar:justify-start
-                  `}
-                >
-                  <Icon size={20} className="shrink-0" />
-                  <span className="hidden group-hover/sidebar:inline truncate">{item.label}</span>
-                </Link>
-              );
-            })}
+          {/* Logo */}
+          <div
+            className="flex items-center px-3 mb-6 overflow-hidden"
+            style={{
+              justifyContent: sidebarExpanded ? 'flex-start' : 'center',
+              gap: sidebarExpanded ? '10px' : '0',
+            }}
+          >
+            <Link
+              href={`/${locale}`}
+              className="flex items-center gap-2 font-bold text-lg tracking-tight"
+              style={{color: activeColor}}
+            >
+              <span className="w-2.5 h-2.5 rounded-full bg-[#088395] shrink-0 inline-block" />
+              {sidebarExpanded && <span>KaarYab</span>}
+            </Link>
+          </div>
+
+          {/* Nav items */}
+          <nav className="flex-1 px-2 space-y-0.5">
+            {navItems.map((item) => (
+              sidebarExpanded ? (
+                <NavItem key={item.href} {...item} />
+              ) : (
+                <Tooltip key={item.href} label={item.label}>
+                  <NavItem {...item} />
+                </Tooltip>
+              )
+            ))}
+
+            {/* Add opportunity */}
+            <Link
+              href={`/${locale}/add-opportunity`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: sidebarExpanded ? '12px' : '0',
+                justifyContent: sidebarExpanded ? 'flex-start' : 'center',
+                padding: '10px 12px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: 600,
+                transition: 'all 0.2s ease',
+                backgroundColor: '#09637e',
+                color: '#fff',
+                textDecoration: 'none',
+                marginTop: '8px',
+              }}
+            >
+              <Plus size={20} style={{flexShrink: 0}} />
+              {sidebarExpanded && <span>Add</span>}
+            </Link>
           </nav>
 
-          {/* Bottom Actions */}
-          <div className="w-full px-2 space-y-1 border-t border-[#d1eef2] dark:border-gray-700 pt-3 mt-2">
-            {/* Language Dropdown */}
-            <div className="relative w-full">
+          {/* Bottom actions */}
+          <div
+            className="px-2 pt-3 space-y-0.5"
+            style={{borderTop: `1px solid ${borderColor}`}}
+          >
+            {/* Language */}
+            <div ref={langRef} className="relative">
               <button
                 onClick={() => setLangOpen(!langOpen)}
-                className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                  text-gray-600 dark:text-gray-400 hover:bg-[#d1eef2] dark:hover:bg-gray-700 hover:text-[#09637e]
-                  w-full justify-center group-hover/sidebar:justify-start
-                `}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: sidebarExpanded ? '12px' : '0',
+                  justifyContent: sidebarExpanded ? 'flex-start' : 'center',
+                  padding: '10px 12px',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  transition: 'all 0.2s ease',
+                  color: textColor,
+                  width: '100%',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                }}
               >
-                <Globe size={20} className="shrink-0" />
-                <span className="hidden group-hover/sidebar:inline truncate">
-                  {languages.find((l) => l.code === locale)?.label || 'EN'}
-                </span>
+                <Globe size={20} style={{flexShrink: 0}} />
+                {sidebarExpanded && (
+                  <span style={{flex: 1, textAlign: 'left'}}>
+                    {languages.find((l) => l.code === locale)?.label ?? 'EN'}
+                  </span>
+                )}
+                {sidebarExpanded && <ChevronRight size={14} style={{transform: langOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s'}} />}
               </button>
+
               {langOpen && (
-                <div className="absolute bottom-full left-0 mb-1 w-48 rounded-xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1 z-50">
+                <div
+                  className="absolute bottom-full left-0 mb-1 w-48 rounded-xl shadow-xl py-1 z-50"
+                  style={{background: isDark ? '#1e293b' : '#fff', border: `1px solid ${borderColor}`}}
+                >
                   {languages.map((lang) => (
                     <button
                       key={lang.code}
                       onClick={() => changeLanguage(lang.code)}
-                      className={`block w-full px-4 py-2 text-left text-sm transition hover:bg-[#d1eef2] dark:hover:bg-gray-700 ${
-                        locale === lang.code
-                          ? 'bg-[#d1eef2] dark:bg-gray-700 font-semibold text-[#09637e] dark:text-[#088395]'
-                          : 'text-gray-700 dark:text-gray-300'
-                      }`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        width: '100%',
+                        padding: '8px 16px',
+                        fontSize: '13px',
+                        fontWeight: locale === lang.code ? 600 : 400,
+                        color: locale === lang.code ? activeColor : textColor,
+                        backgroundColor: locale === lang.code ? activeBg : 'transparent',
+                        cursor: 'pointer',
+                        border: 'none',
+                        textAlign: 'left',
+                      }}
                     >
+                      <span>{lang.flag}</span>
                       {lang.label}
                     </button>
                   ))}
@@ -210,157 +357,277 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Theme Toggle */}
+            {/* Theme */}
             <button
               onClick={toggleTheme}
-              className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                text-gray-600 dark:text-gray-400 hover:bg-[#d1eef2] dark:hover:bg-gray-700 hover:text-[#09637e]
-                w-full justify-center group-hover/sidebar:justify-start
-              `}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: sidebarExpanded ? '12px' : '0',
+                justifyContent: sidebarExpanded ? 'flex-start' : 'center',
+                padding: '10px 12px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: textColor,
+                width: '100%',
+                background: 'transparent',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
             >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-              <span className="hidden group-hover/sidebar:inline truncate">
-                {theme === 'dark' ? common('lightMode') : common('darkMode')}
-              </span>
+              {isDark ? <Sun size={20} style={{flexShrink: 0}} /> : <Moon size={20} style={{flexShrink: 0}} />}
+              {sidebarExpanded && <span>{isDark ? common('lightMode') : common('darkMode')}</span>}
             </button>
 
-            {/* User / Auth */}
+            {/* User */}
             {user ? (
               <>
                 <Link
                   href={`/${locale}/profile`}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                    text-gray-600 dark:text-gray-400 hover:bg-[#d1eef2] dark:hover:bg-gray-700 hover:text-[#09637e]
-                    w-full justify-center group-hover/sidebar:justify-start
-                  `}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: sidebarExpanded ? '12px' : '0',
+                    justifyContent: sidebarExpanded ? 'flex-start' : 'center',
+                    padding: '8px 12px',
+                    borderRadius: '12px',
+                    transition: 'all 0.2s',
+                    textDecoration: 'none',
+                    color: textColor,
+                  }}
                 >
-                  <Avatar profile={profile} avatarSrc={avatarSrc} />
-                  <span className="hidden group-hover/sidebar:inline truncate">
-                    {profile?.firstName || t('profile')}
-                  </span>
+                  <Avatar profile={profile} avatarSrc={avatarSrc} size={28} />
+                  {sidebarExpanded && (
+                    <span style={{fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                      {profile?.firstName ?? t('profile')}
+                    </span>
+                  )}
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                    text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20
-                    w-full justify-center group-hover/sidebar:justify-start
-                  `}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: sidebarExpanded ? '12px' : '0',
+                    justifyContent: sidebarExpanded ? 'flex-start' : 'center',
+                    padding: '10px 12px',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#ef4444',
+                    width: '100%',
+                    background: 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
                 >
-                  <LogOut size={20} className="shrink-0" />
-                  <span className="hidden group-hover/sidebar:inline truncate">{t('logout')}</span>
+                  <LogOut size={20} style={{flexShrink: 0}} />
+                  {sidebarExpanded && <span>{t('logout')}</span>}
                 </button>
               </>
             ) : (
               <Link
                 href={`/${locale}/login`}
-                className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                  bg-[#09637e] text-white hover:bg-[#075a6b]
-                  w-full justify-center group-hover/sidebar:justify-start
-                `}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: sidebarExpanded ? '12px' : '0',
+                  justifyContent: sidebarExpanded ? 'flex-start' : 'center',
+                  padding: '10px 12px',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  backgroundColor: '#09637e',
+                  color: '#fff',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s',
+                }}
               >
-                <LogIn size={20} className="shrink-0" />
-                <span className="hidden group-hover/sidebar:inline truncate">{t('login')}</span>
+                <LogIn size={20} style={{flexShrink: 0}} />
+                {sidebarExpanded && <span>{t('login')}</span>}
               </Link>
             )}
           </div>
         </div>
       </aside>
 
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
+      {/* ====== MOBILE OVERLAY ====== */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-50 md:hidden"
+          style={{background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)'}}
+          onClick={() => setMobileOpen(false)}
         />
       )}
 
-      {/* Mobile Sidebar */}
-      <div className={`
-        fixed inset-y-0 left-0 z-50 w-[280px] bg-white dark:bg-gray-900 shadow-2xl transform transition-transform duration-300 ease-in-out md:hidden
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 h-[60px] border-b border-[#d1eef2] dark:border-gray-700">
-            <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-lg text-[#09637e]">
-              <span className="w-2 h-2 rounded-full bg-[#088395] inline-block" />
-              KaarYab
-            </Link>
-            <button onClick={() => setIsSidebarOpen(false)} className={iconBtn}>
-              <X size={22} />
-            </button>
-          </div>
+      {/* ====== MOBILE DRAWER ====== */}
+      <div
+        className="fixed inset-y-0 left-0 z-50 w-[280px] md:hidden flex flex-col shadow-2xl transition-transform duration-300"
+        style={{
+          background: isDark ? '#0f172a' : '#fff',
+          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+        }}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-4 h-[60px] shrink-0"
+          style={{borderBottom: `1px solid ${borderColor}`}}
+        >
+          <Link href={`/${locale}`} className="flex items-center gap-2 font-bold text-lg" style={{color: activeColor}}>
+            <span className="w-2 h-2 rounded-full bg-[#088395] inline-block" />
+            KaarYab
+          </Link>
+          <button
+            onClick={() => setMobileOpen(false)}
+            style={{color: textColor}}
+            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-[#d1eef2] transition"
+          >
+            <X size={22} />
+          </button>
+        </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={`/${locale}${item.href}`}
-                  onClick={() => setIsSidebarOpen(false)}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                    ${active 
-                      ? 'bg-[#d1eef2] dark:bg-gray-700 text-[#09637e] dark:text-[#088395]' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-[#d1eef2] dark:hover:bg-gray-700 hover:text-[#09637e]'
-                    }
-                  `}
-                >
-                  <Icon size={20} />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Bottom */}
-          <div className="px-3 py-4 border-t border-[#d1eef2] dark:border-gray-700 space-y-1">
-            {/* Mobile Languages */}
-            <div className="flex flex-wrap gap-2">
-              {languages.map((lang) => (
-                <button
-                  key={lang.code}
-                  onClick={() => {
-                    changeLanguage(lang.code);
-                    setIsSidebarOpen(false);
-                  }}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-                    locale === lang.code
-                      ? 'bg-[#09637e] text-white'
-                      : 'bg-[#d1eef2] dark:bg-gray-700 text-gray-600 dark:text-gray-300'
-                  }`}
-                >
-                  {lang.label}
-                </button>
-              ))}
-            </div>
-
-            {user ? (
-              <button
-                onClick={() => { handleLogout(); setIsSidebarOpen(false); }}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-              >
-                <LogOut size={20} />
-                {t('logout')}
-              </button>
-            ) : (
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+            return (
               <Link
-                href={`/${locale}/login`}
-                onClick={() => setIsSidebarOpen(false)}
-                className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium bg-[#09637e] text-white hover:bg-[#075a6b]"
+                key={item.href}
+                href={`/${locale}${item.href}`}
+                onClick={() => setMobileOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '10px 12px',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  color: active ? activeColor : textColor,
+                  backgroundColor: active ? activeBg : 'transparent',
+                  textDecoration: 'none',
+                  transition: 'all 0.15s',
+                }}
               >
-                <LogIn size={20} />
-                {t('login')}
+                <Icon size={20} />
+                {item.label}
               </Link>
-            )}
+            );
+          })}
+
+          <Link
+            href={`/${locale}/add-opportunity`}
+            onClick={() => setMobileOpen(false)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '10px 12px',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: 600,
+              color: '#fff',
+              backgroundColor: '#09637e',
+              textDecoration: 'none',
+              marginTop: '8px',
+            }}
+          >
+            <Plus size={20} />
+            Add opportunity
+          </Link>
+        </nav>
+
+        {/* Bottom */}
+        <div
+          className="px-3 py-3 space-y-1 shrink-0"
+          style={{borderTop: `1px solid ${borderColor}`}}
+        >
+          {/* Languages */}
+          <div className="flex gap-2 flex-wrap mb-2">
+            {languages.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => changeLanguage(lang.code)}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: locale === lang.code ? 600 : 400,
+                  backgroundColor: locale === lang.code ? '#09637e' : activeBg,
+                  color: locale === lang.code ? '#fff' : textColor,
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                {lang.flag} {lang.label}
+              </button>
+            ))}
           </div>
+
+          {/* Theme */}
+          <button
+            onClick={toggleTheme}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '10px 12px',
+              borderRadius: '12px',
+              fontSize: '14px',
+              color: textColor,
+              width: '100%',
+              background: 'transparent',
+              cursor: 'pointer',
+            }}
+          >
+            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            {isDark ? common('lightMode') : common('darkMode')}
+          </button>
+
+          {/* Auth */}
+          {user ? (
+            <button
+              onClick={() => {handleLogout(); setMobileOpen(false);}}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '10px 12px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                color: '#ef4444',
+                width: '100%',
+                background: 'transparent',
+                cursor: 'pointer',
+              }}
+            >
+              <LogOut size={20} />
+              {t('logout')}
+            </button>
+          ) : (
+            <Link
+              href={`/${locale}/login`}
+              onClick={() => setMobileOpen(false)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                padding: '10px 12px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#fff',
+                backgroundColor: '#09637e',
+                textDecoration: 'none',
+              }}
+            >
+              <LogIn size={20} />
+              {t('login')}
+            </Link>
+          )}
         </div>
       </div>
     </>
