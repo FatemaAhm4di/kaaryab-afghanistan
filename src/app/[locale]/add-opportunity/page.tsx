@@ -4,17 +4,16 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { Plus, Send, X } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { MotionWrapper, MotionCard } from '@/components/ui/MotionWrapper';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const inputClass =
   'w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 text-sm text-[#1f2937] outline-none transition focus:border-[#09637e] focus:ring-2 focus:ring-[#d1eef2]';
 
 export default function AddOpportunityPage() {
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] || 'en';
+  const locale = pathname.split('/')[1] || 'fa';
   const router = useRouter();
-  const t = useTranslations('add');
-  const common = useTranslations('common');
 
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -47,20 +46,19 @@ export default function AddOpportunityPage() {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.title) e.title = t('titleRequired');
-    if (!form.organization) e.organization = t('orgRequired');
-    if (!form.location) e.location = t('locationRequired');
-    if (!form.deadline) e.deadline = t('deadlineRequired');
-    if (!form.description) e.description = t('descRequired');
-    if (!form.applyLink) e.applyLink = t('applyRequired');
+    if (!form.title) e.title = 'Title is required';
+    if (!form.organization) e.organization = 'Organization is required';
+    if (!form.location) e.location = 'Location is required';
+    if (!form.deadline) e.deadline = 'Deadline is required';
+    if (!form.description) e.description = 'Description is required';
+    if (!form.applyLink) e.applyLink = 'Apply link is required';
     if (form.applyLink && !form.applyLink.startsWith('http'))
-      e.applyLink = t('applyInvalid');
+      e.applyLink = 'Must be a valid URL starting with http';
     return e;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -86,9 +84,7 @@ export default function AddOpportunityPage() {
 
       const response = await fetch('/api/opportunities', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(opportunityData),
       });
 
@@ -100,11 +96,10 @@ export default function AddOpportunityPage() {
 
       setSubmitting(false);
       setSubmitted(true);
-
     } catch (error) {
       console.error('❌ Error:', error);
       setSubmitting(false);
-      alert(t('errorMessage') + '\n' + error);
+      alert('❌ خطا در ایجاد فرصت!\n' + error);
     }
   };
 
@@ -112,25 +107,38 @@ export default function AddOpportunityPage() {
     return (
       <main className="min-h-screen bg-[var(--color-background)]">
         <section className="container-custom py-16">
-          <div className="mx-auto flex max-w-md flex-col items-center rounded-2xl border border-[#d1eef2] bg-white py-16 text-center">
-            <Image
-              src="/illustrations/illustration-add-opportunity.svg"
-              alt="Success"
-              width={200}
-              height={160}
-              className="mb-6"
-            />
-            <h2 className="mb-2 text-xl font-bold text-[#09637e]">{t('success')}</h2>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', damping: 25 }}
+            className="mx-auto flex max-w-md flex-col items-center rounded-2xl border border-[#d1eef2] bg-white py-16 text-center"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring' }}
+            >
+              <Image
+                src="/illustrations/illustration-add-opportunity.svg"
+                alt="Success"
+                width={200}
+                height={160}
+                className="mb-6"
+              />
+            </motion.div>
+            <h2 className="mb-2 text-xl font-bold text-[#09637e]">✅ Opportunity submitted!</h2>
             <p className="mb-6 max-w-xs text-sm text-[var(--color-text-secondary)]">
-              {t('successMessage')}
+              Thank you for sharing. It will be reviewed shortly.
             </p>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => router.push(`/${locale}/opportunities`)}
               className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
             >
-              {t('browseButton')} →
-            </button>
-          </div>
+              Browse opportunities →
+            </motion.button>
+          </motion.div>
         </section>
       </main>
     );
@@ -140,199 +148,216 @@ export default function AddOpportunityPage() {
     <main className="min-h-screen bg-[var(--color-background)]">
       <section className="container-custom py-16">
         <div className="mx-auto max-w-2xl">
-          <div className="mb-8 flex flex-col items-center text-center">
-            <Image
-              src="/illustrations/illustration-add-opportunity.svg"
-              alt="Add opportunity"
-              width={220}
-              height={180}
-              className="mb-6"
-            />
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-4 py-2 text-sm font-medium text-[#09637e]">
-              <Plus size={14} />
-              {t('badge')}
-            </div>
-            <h1 className="mb-3 text-3xl font-extrabold text-[#09637e] md:text-4xl">
-              {t('title')}
-            </h1>
-            <p className="text-[var(--color-text-secondary)]">
-              {t('subtitle')}
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="rounded-2xl border border-[#d1eef2] bg-white p-8">
-            <p className="mb-6 text-xs text-[var(--color-text-secondary)]">
-              <span className="text-red-500">*</span> {t('requiredFields')}
-            </p>
-
-            <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
-              {t('basicInfo')}
-            </p>
-
-            <div className="mb-4 grid gap-4 md:grid-cols-2">
-              <div className="md:col-span-2">
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  {t('titleLabel')} <span className="text-red-500">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  placeholder={t('titlePlaceholder')}
-                  value={form.title} 
-                  onChange={(e) => set('title', e.target.value)} 
-                  className={inputClass} 
-                />
-                {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title}</p>}
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  {t('organizationLabel')} <span className="text-red-500">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  placeholder={t('orgPlaceholder')}
-                  value={form.organization} 
-                  onChange={(e) => set('organization', e.target.value)} 
-                  className={inputClass} 
-                />
-                {errors.organization && <p className="mt-1 text-xs text-red-500">{errors.organization}</p>}
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('categoryLabel')} <span className="text-red-500">*</span></label>
-                <select value={form.category} onChange={(e) => set('category', e.target.value)} className={inputClass}>
-                  <option value="Job">{common('job')}</option>
-                  <option value="Internship">{common('internship')}</option>
-                  <option value="Scholarship">{common('scholarship')}</option>
-                  <option value="Remote">{common('remote')}</option>
-                  <option value="Training">{common('training')}</option>
-                  <option value="Volunteer">{common('volunteer')}</option>
-                  <option value="Course">{common('course')}</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('typeLabel')} <span className="text-red-500">*</span></label>
-                <select value={form.type} onChange={(e) => set('type', e.target.value)} className={inputClass}>
-                  <option value="Remote">{common('remote')}</option>
-                  <option value="OnSite">{common('onSite')}</option>
-                  <option value="Hybrid">{common('hybrid')}</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('locationLabel')} <span className="text-red-500">*</span></label>
-                <input 
-                  type="text" 
-                  placeholder={t('locationPlaceholder')}
-                  value={form.location} 
-                  onChange={(e) => set('location', e.target.value)} 
-                  className={inputClass} 
-                />
-                {errors.location && <p className="mt-1 text-xs text-red-500">{errors.location}</p>}
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('deadlineLabel')} <span className="text-red-500">*</span></label>
-                <input 
-                  type="date" 
-                  value={form.deadline} 
-                  onChange={(e) => set('deadline', e.target.value)} 
-                  className={inputClass} 
-                />
-                {errors.deadline && <p className="mt-1 text-xs text-red-500">{errors.deadline}</p>}
-              </div>
-            </div>
-
-            <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
-              {t('details')}
-            </p>
-
-            <div className="mb-4 flex flex-col gap-4">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('descriptionLabel')} <span className="text-red-500">*</span></label>
-                <textarea 
-                  rows={4} 
-                  placeholder={t('descPlaceholder')}
-                  value={form.description} 
-                  onChange={(e) => set('description', e.target.value)} 
-                  className={`${inputClass} resize-none`} 
-                />
-                {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  {t('requirementsLabel')}
-                  <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">({t('requirementsHint')})</span>
-                </label>
-                <textarea 
-                  rows={3} 
-                  placeholder={t('requirementsPlaceholder')}
-                  value={form.requirements} 
-                  onChange={(e) => set('requirements', e.target.value)} 
-                  className={`${inputClass} resize-none`} 
-                />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('applyLinkLabel')} <span className="text-red-500">*</span></label>
-                <input 
-                  type="url" 
-                  placeholder={t('applyPlaceholder')}
-                  value={form.applyLink} 
-                  onChange={(e) => set('applyLink', e.target.value)} 
-                  className={inputClass} 
-                />
-                {errors.applyLink && <p className="mt-1 text-xs text-red-500">{errors.applyLink}</p>}
-              </div>
-            </div>
-
-            <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
-              {t('tags')}
-            </p>
-
-            <div className="mb-8 flex flex-wrap gap-2 rounded-xl border border-[#d1eef2] bg-white p-3">
-              {tags.map((tag) => (
-                <span key={tag} className="flex items-center gap-1 rounded-full bg-[#d1eef2] px-3 py-1 text-xs font-medium text-[#09637e]">
-                  {tag}
-                  <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))}>
-                    <X size={12} />
-                  </button>
-                </span>
-              ))}
-              <input
-                type="text"
-                placeholder={t('tagsPlaceholder')}
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                className="min-w-[140px] flex-1 bg-transparent text-sm outline-none"
+          {/* Header */}
+          <MotionWrapper delay={0.1}>
+            <div className="mb-8 flex flex-col items-center text-center">
+              <Image
+                src="/illustrations/illustration-add-opportunity.svg"
+                alt="Add opportunity"
+                width={220}
+                height={180}
+                className="mb-6"
               />
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-4 py-2 text-sm font-medium text-[#09637e]">
+                <Plus size={14} />
+                New listing
+              </div>
+              <h1 className="mb-3 text-3xl font-extrabold text-[#09637e] md:text-4xl">
+                Add an opportunity
+              </h1>
+              <p className="text-[var(--color-text-secondary)]">
+                Share a job, scholarship, internship, or remote work opportunity.
+              </p>
             </div>
+          </MotionWrapper>
 
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="rounded-xl border border-[#d1eef2] bg-white px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
-              >
-                {t('cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-              >
-                {submitting ? (
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                ) : (
-                  <Send size={15} />
-                )}
-                {submitting ? t('submitting') : t('submit')}
-              </button>
-            </div>
-          </form>
+          {/* Form */}
+          <MotionWrapper delay={0.2}>
+            <form onSubmit={handleSubmit} className="rounded-2xl border border-[#d1eef2] bg-white p-8">
+              <p className="mb-6 text-xs text-[var(--color-text-secondary)]">
+                <span className="text-red-500">*</span> Required fields
+              </p>
+
+              <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
+                Basic information
+              </p>
+
+              <div className="mb-4 grid gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">
+                    Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Frontend Developer Intern"
+                    value={form.title}
+                    onChange={(e) => set('title', e.target.value)}
+                    className={inputClass}
+                  />
+                  {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title}</p>}
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">
+                    Organization <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Kabul Tech Community"
+                    value={form.organization}
+                    onChange={(e) => set('organization', e.target.value)}
+                    className={inputClass}
+                  />
+                  {errors.organization && <p className="mt-1 text-xs text-red-500">{errors.organization}</p>}
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Category <span className="text-red-500">*</span></label>
+                  <select value={form.category} onChange={(e) => set('category', e.target.value)} className={inputClass}>
+                    <option value="Job">Job</option>
+                    <option value="Internship">Internship</option>
+                    <option value="Scholarship">Scholarship</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Training">Training</option>
+                    <option value="Volunteer">Volunteer</option>
+                    <option value="Course">Course</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Type <span className="text-red-500">*</span></label>
+                  <select value={form.type} onChange={(e) => set('type', e.target.value)} className={inputClass}>
+                    <option value="Remote">Remote</option>
+                    <option value="OnSite">On-site</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Location <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Kabul or Online"
+                    value={form.location}
+                    onChange={(e) => set('location', e.target.value)}
+                    className={inputClass}
+                  />
+                  {errors.location && <p className="mt-1 text-xs text-red-500">{errors.location}</p>}
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Deadline <span className="text-red-500">*</span></label>
+                  <input
+                    type="date"
+                    value={form.deadline}
+                    onChange={(e) => set('deadline', e.target.value)}
+                    className={inputClass}
+                  />
+                  {errors.deadline && <p className="mt-1 text-xs text-red-500">{errors.deadline}</p>}
+                </div>
+              </div>
+
+              <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
+                Details
+              </p>
+
+              <div className="mb-4 flex flex-col gap-4">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Description <span className="text-red-500">*</span></label>
+                  <textarea
+                    rows={4}
+                    placeholder="Describe the opportunity..."
+                    value={form.description}
+                    onChange={(e) => set('description', e.target.value)}
+                    className={`${inputClass} resize-none`}
+                  />
+                  {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">
+                    Requirements <span className="text-xs font-normal text-[var(--color-text-secondary)]">(one per line)</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="React"
+                    value={form.requirements}
+                    onChange={(e) => set('requirements', e.target.value)}
+                    className={`${inputClass} resize-none`}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Apply link <span className="text-red-500">*</span></label>
+                  <input
+                    type="url"
+                    placeholder="https://..."
+                    value={form.applyLink}
+                    onChange={(e) => set('applyLink', e.target.value)}
+                    className={inputClass}
+                  />
+                  {errors.applyLink && <p className="mt-1 text-xs text-red-500">{errors.applyLink}</p>}
+                </div>
+              </div>
+
+              <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
+                Tags
+              </p>
+
+              <div className="mb-8 flex flex-wrap gap-2 rounded-xl border border-[#d1eef2] bg-white p-3">
+                <AnimatePresence>
+                  {tags.map((tag) => (
+                    <motion.span
+                      key={tag}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="flex items-center gap-1 rounded-full bg-[#d1eef2] px-3 py-1 text-xs font-medium text-[#09637e]"
+                    >
+                      {tag}
+                      <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))}>
+                        <X size={12} />
+                      </button>
+                    </motion.span>
+                  ))}
+                </AnimatePresence>
+                <input
+                  type="text"
+                  placeholder="Add a tag and press Enter..."
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  className="min-w-[140px] flex-1 bg-transparent text-sm outline-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="button"
+                  onClick={() => router.back()}
+                  className="rounded-xl border border-[#d1eef2] bg-white px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="submit"
+                  disabled={submitting}
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+                >
+                  {submitting ? (
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  ) : (
+                    <Send size={15} />
+                  )}
+                  {submitting ? 'Submitting...' : 'Submit opportunity'}
+                </motion.button>
+              </div>
+            </form>
+          </MotionWrapper>
         </div>
       </section>
     </main>

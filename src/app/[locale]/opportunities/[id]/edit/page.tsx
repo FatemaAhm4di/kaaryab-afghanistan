@@ -8,7 +8,8 @@ import {zodResolver} from '@hookform/resolvers/zod';
 import {useOpportunities} from '@/context/OpportunitiesContext';
 import {ArrowLeft, Save, X} from 'lucide-react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { MotionWrapper, MotionCard } from '@/components/ui/MotionWrapper';
+import { motion } from 'framer-motion';
 
 const schema = z.object({
   title: z.string().min(3, 'Title is required'),
@@ -30,10 +31,8 @@ const inputClass =
 
 export default function EditOpportunityPage({params}: {params: Promise<{id: string}>}) {
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] || 'en';
+  const locale = pathname.split('/')[1] || 'fa';
   const router = useRouter();
-  const t = useTranslations('edit');
-  const common = useTranslations('common');
   const {opportunities, updateOpportunity} = useOpportunities();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -79,7 +78,11 @@ export default function EditOpportunityPage({params}: {params: Promise<{id: stri
   if (loading) {
     return (
       <main className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#d1eef2] border-t-[#09637e]" />
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="h-8 w-8 rounded-full border-4 border-[#d1eef2] border-t-[#09637e]"
+        />
       </main>
     );
   }
@@ -88,131 +91,129 @@ export default function EditOpportunityPage({params}: {params: Promise<{id: stri
     <main className="min-h-screen bg-[var(--color-background)]">
       <section className="container-custom py-12">
 
-        <div className="mb-8">
-          <Link href={`/${locale}/opportunities`} className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[#09637e]">
-            <ArrowLeft size={16} />
-            {t('back')}
-          </Link>
-        </div>
+        <MotionWrapper delay={0.1}>
+          <div className="mb-8">
+            <Link href={`/${locale}/opportunities`} className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[#09637e]">
+              <ArrowLeft size={16} />
+              Back to opportunities
+            </Link>
+          </div>
+        </MotionWrapper>
 
         <div className="mx-auto max-w-2xl">
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-extrabold text-[#09637e]">{t('title')}</h1>
-            <p className="mt-2 text-[var(--color-text-secondary)]">{t('subtitle')}</p>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl border border-[#d1eef2] bg-white p-8">
-
-            <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
-              {t('basicInfo')}
-            </p>
-
-            <div className="mb-6 grid gap-4 md:grid-cols-2">
-              <div className="md:col-span-2">
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('titleLabel')} <span className="text-red-500">*</span></label>
-                <input type="text" {...register('title')} className={inputClass} />
-                {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title.message}</p>}
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('orgLabel')} <span className="text-red-500">*</span></label>
-                <input type="text" {...register('organization')} className={inputClass} />
-                {errors.organization && <p className="mt-1 text-xs text-red-500">{errors.organization.message}</p>}
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('categoryLabel')} <span className="text-red-500">*</span></label>
-                <select {...register('category')} className={inputClass}>
-                  <option value="Job">{common('job')}</option>
-                  <option value="Internship">{common('internship')}</option>
-                  <option value="Scholarship">{common('scholarship')}</option>
-                  <option value="Remote">{common('remote')}</option>
-                  <option value="Training">{common('training')}</option>
-                  <option value="Volunteer">{common('volunteer')}</option>
-                  <option value="Course">{common('course')}</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('typeLabel')} <span className="text-red-500">*</span></label>
-                <select {...register('type')} className={inputClass}>
-                  <option value="Remote">{common('remote')}</option>
-                  <option value="OnSite">{common('onSite')}</option>
-                  <option value="Hybrid">{common('hybrid')}</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('locationLabel')} <span className="text-red-500">*</span></label>
-                <input type="text" {...register('location')} className={inputClass} />
-                {errors.location && <p className="mt-1 text-xs text-red-500">{errors.location.message}</p>}
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('deadlineLabel')} <span className="text-red-500">*</span></label>
-                <input type="date" {...register('deadline')} className={inputClass} />
-                {errors.deadline && <p className="mt-1 text-xs text-red-500">{errors.deadline.message}</p>}
-              </div>
+          <MotionWrapper delay={0.2}>
+            <div className="mb-8 text-center">
+              <h1 className="text-3xl font-extrabold text-[#09637e]">Edit opportunity</h1>
+              <p className="mt-2 text-[var(--color-text-secondary)]">Update the details of this opportunity.</p>
             </div>
+          </MotionWrapper>
 
-            <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
-              {t('details')}
-            </p>
+          <MotionWrapper delay={0.3}>
+            <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl border border-[#d1eef2] bg-white p-8">
+              <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
+                Basic information
+              </p>
 
-            <div className="mb-6 flex flex-col gap-4">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('descLabel')} <span className="text-red-500">*</span></label>
-                <textarea rows={4} {...register('description')} className={`${inputClass} resize-none`} />
-                {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description.message}</p>}
+              <div className="mb-6 grid gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Title <span className="text-red-500">*</span></label>
+                  <input type="text" {...register('title')} className={inputClass} />
+                  {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title.message}</p>}
+                </div>
+                <div className="md:col-span-2">
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Organization <span className="text-red-500">*</span></label>
+                  <input type="text" {...register('organization')} className={inputClass} />
+                  {errors.organization && <p className="mt-1 text-xs text-red-500">{errors.organization.message}</p>}
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Category <span className="text-red-500">*</span></label>
+                  <select {...register('category')} className={inputClass}>
+                    <option value="Job">Job</option>
+                    <option value="Internship">Internship</option>
+                    <option value="Scholarship">Scholarship</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Training">Training</option>
+                    <option value="Volunteer">Volunteer</option>
+                    <option value="Course">Course</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Type <span className="text-red-500">*</span></label>
+                  <select {...register('type')} className={inputClass}>
+                    <option value="Remote">Remote</option>
+                    <option value="OnSite">On-site</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Location <span className="text-red-500">*</span></label>
+                  <input type="text" {...register('location')} className={inputClass} />
+                  {errors.location && <p className="mt-1 text-xs text-red-500">{errors.location.message}</p>}
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Deadline <span className="text-red-500">*</span></label>
+                  <input type="date" {...register('deadline')} className={inputClass} />
+                  {errors.deadline && <p className="mt-1 text-xs text-red-500">{errors.deadline.message}</p>}
+                </div>
               </div>
 
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  {t('reqLabel')}
-                  <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">({t('reqHint')})</span>
-                </label>
-                <textarea rows={3} {...register('requirements')} className={`${inputClass} resize-none`} />
+              <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
+                Details
+              </p>
+
+              <div className="mb-6 flex flex-col gap-4">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Description <span className="text-red-500">*</span></label>
+                  <textarea rows={4} {...register('description')} className={`${inputClass} resize-none`} />
+                  {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description.message}</p>}
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">
+                    Requirements <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">(one per line)</span>
+                  </label>
+                  <textarea rows={3} {...register('requirements')} className={`${inputClass} resize-none`} />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Apply link <span className="text-red-500">*</span></label>
+                  <input type="text" {...register('applyLink')} className={inputClass} />
+                  {errors.applyLink && <p className="mt-1 text-xs text-red-500">{errors.applyLink.message}</p>}
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">
+                    Tags <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">(comma separated)</span>
+                  </label>
+                  <input type="text" placeholder="React, Frontend, Remote" {...register('tags')} className={inputClass} />
+                </div>
               </div>
 
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('applyLabel')} <span className="text-red-500">*</span></label>
-                <input type="text" {...register('applyLink')} className={inputClass} />
-                {errors.applyLink && <p className="mt-1 text-xs text-red-500">{errors.applyLink.message}</p>}
+              <div className="flex justify-end gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="button"
+                  onClick={() => router.back()}
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#d1eef2] bg-white px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
+                >
+                  <X size={15} />
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="submit"
+                  disabled={saving}
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+                >
+                  {saving ? (
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  ) : (
+                    <Save size={15} />
+                  )}
+                  {saving ? 'Saving...' : 'Save changes'}
+                </motion.button>
               </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  {t('tagsLabel')}
-                  <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">({t('tagsHint')})</span>
-                </label>
-                <input type="text" placeholder="React, Frontend, Remote" {...register('tags')} className={inputClass} />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="inline-flex items-center gap-2 rounded-xl border border-[#d1eef2] bg-white px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
-              >
-                <X size={15} />
-                {common('cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={saving}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-              >
-                {saving ? (
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                ) : (
-                  <Save size={15} />
-                )}
-                {saving ? t('saving') : t('saveChanges')}
-              </button>
-            </div>
-
-          </form>
+            </form>
+          </MotionWrapper>
         </div>
       </section>
     </main>

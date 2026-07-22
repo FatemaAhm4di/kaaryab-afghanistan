@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Briefcase, MapPin, Calendar, Tag } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { MotionWrapper, MotionCard } from '@/components/ui/MotionWrapper';
+import { motion } from 'framer-motion';
 
 type Opportunity = {
   id: string;
@@ -52,24 +53,32 @@ function OpportunitySkeleton() {
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  const t = useTranslations('details');
   return (
     <main className="container-custom py-20">
       <div className="mx-auto max-w-md text-center">
-        <div className="mb-6 text-6xl">😕</div>
-        <h2 className="text-2xl font-bold text-[#09637e]">{t('error')}</h2>
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', damping: 20 }}
+          className="mb-6 text-6xl"
+        >
+          😕
+        </motion.div>
+        <h2 className="text-2xl font-bold text-[#09637e]">Something went wrong</h2>
         <p className="mt-2 text-gray-600">{message}</p>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={onRetry}
           className="mt-6 rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]"
         >
-          {t('retry')}
-        </button>
+          Try again
+        </motion.button>
         <Link
           href="/opportunities"
           className="mt-4 block text-sm text-[#09637e] transition hover:text-[#075a6b]"
         >
-          ← {t('back')}
+          ← Back to opportunities
         </Link>
       </div>
     </main>
@@ -79,10 +88,8 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 export default function OpportunityPage() {
   const params = useParams();
   const router = useRouter();
-  const locale = (params.locale as string) || 'en';
+  const locale = (params.locale as string) || 'fa';
   const id = params.id as string;
-  const t = useTranslations('details');
-  const common = useTranslations('common');
 
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
   const [loading, setLoading] = useState(true);
@@ -94,11 +101,8 @@ export default function OpportunityPage() {
     try {
       const res = await fetch(`/api/opportunities/${id}`);
       if (!res.ok) {
-        if (res.status === 404) {
-          setError(t('notFound'));
-        } else {
-          setError(t('errorMessage'));
-        }
+        if (res.status === 404) setError('Opportunity not found');
+        else setError('Failed to load opportunity');
         return;
       }
       const data = await res.json();
@@ -114,28 +118,24 @@ export default function OpportunityPage() {
     fetchOpportunity();
   }, [id]);
 
-  if (loading) {
-    return <OpportunitySkeleton />;
-  }
-
-  if (error) {
-    return <ErrorState message={error} onRetry={fetchOpportunity} />;
-  }
-
+  if (loading) return <OpportunitySkeleton />;
+  if (error) return <ErrorState message={error} onRetry={fetchOpportunity} />;
   if (!opportunity) {
     return (
       <main className="container-custom py-20">
         <div className="mx-auto max-w-md text-center">
-          <div className="mb-6 text-6xl">🔍</div>
-          <h2 className="text-2xl font-bold text-[#09637e]">{t('notFound')}</h2>
-          <p className="mt-2 text-gray-600">
-            {t('notFoundMessage')}
-          </p>
-          <Link
-            href={`/${locale}/opportunities`}
-            className="mt-6 inline-block rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]"
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', damping: 20 }}
+            className="mb-6 text-6xl"
           >
-            {t('browse')}
+            🔍
+          </motion.div>
+          <h2 className="text-2xl font-bold text-[#09637e]">Opportunity not found</h2>
+          <p className="mt-2 text-gray-600">The opportunity you are looking for does not exist or has been removed.</p>
+          <Link href={`/${locale}/opportunities`} className="mt-6 inline-block rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]">
+            Browse opportunities
           </Link>
         </div>
       </main>
@@ -144,90 +144,112 @@ export default function OpportunityPage() {
 
   return (
     <main className="container-custom py-10">
-      <button
-        onClick={() => router.back()}
-        className="mb-6 inline-flex items-center gap-2 text-sm text-[#09637e] transition hover:text-[#075a6b]"
-      >
-        <ArrowLeft size={16} />
-        {common('back')}
-      </button>
+      {/* Back Button */}
+      <MotionWrapper delay={0.1}>
+        <button
+          onClick={() => router.back()}
+          className="mb-6 inline-flex items-center gap-2 text-sm text-[#09637e] transition hover:text-[#075a6b]"
+        >
+          <ArrowLeft size={16} />
+          Back
+        </button>
+      </MotionWrapper>
 
-      <div className="mb-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-[#09637e] md:text-4xl">
-              {opportunity.title}
-            </h1>
-            <p className="mt-2 flex items-center gap-2 text-gray-600">
-              <Briefcase size={16} />
-              {opportunity.organization}
-              <span className="mx-1">•</span>
-              <MapPin size={16} />
-              {opportunity.location}
-            </p>
+      {/* Header */}
+      <MotionWrapper delay={0.2}>
+        <div className="mb-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-[#09637e] md:text-4xl">{opportunity.title}</h1>
+              <p className="mt-2 flex items-center gap-2 text-gray-600">
+                <Briefcase size={16} />
+                {opportunity.organization}
+                <span className="mx-1">•</span>
+                <MapPin size={16} />
+                {opportunity.location}
+              </p>
+            </div>
+            <span className="rounded-full bg-[#d1eef2] px-4 py-1.5 text-sm font-medium text-[#09637e]">
+              {opportunity.category}
+            </span>
           </div>
-          <span className="rounded-full bg-[#d1eef2] px-4 py-1.5 text-sm font-medium text-[#09637e]">
-            {opportunity.category}
+        </div>
+      </MotionWrapper>
+
+      {/* Badges */}
+      <MotionWrapper delay={0.3}>
+        <div className="mb-8 flex flex-wrap gap-2">
+          <span className="rounded-full bg-[#ebf4f6] px-3 py-1 text-xs font-medium text-[#09637e]">
+            {opportunity.type}
           </span>
-        </div>
-      </div>
-
-      <div className="mb-8 flex flex-wrap gap-2">
-        <span className="rounded-full bg-[#ebf4f6] px-3 py-1 text-xs font-medium text-[#09637e]">
-          {opportunity.type}
-        </span>
-        <span className="rounded-full bg-[#ebf4f6] px-3 py-1 text-xs font-medium text-[#09637e]">
-          <Calendar size={12} className="inline mr-1" />
-          {t('deadline')}: {new Date(opportunity.deadline).toLocaleDateString()}
-        </span>
-        {opportunity.tags?.map((tag) => (
-          <span key={tag} className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
-            <Tag size={10} className="inline mr-1" />
-            {tag}
+          <span className="rounded-full bg-[#ebf4f6] px-3 py-1 text-xs font-medium text-[#09637e]">
+            <Calendar size={12} className="inline mr-1" />
+            {new Date(opportunity.deadline).toLocaleDateString()}
           </span>
-        ))}
-      </div>
+          {opportunity.tags?.map((tag) => (
+            <span key={tag} className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
+              <Tag size={10} className="inline mr-1" />
+              {tag}
+            </span>
+          ))}
+        </div>
+      </MotionWrapper>
 
-      <section className="mb-8">
-        <h2 className="mb-3 text-xl font-semibold text-[#09637e]">{t('description')}</h2>
-        <div className="rounded-2xl border border-[#d1eef2] bg-white p-6">
-          <p className="text-gray-700 leading-relaxed">{opportunity.description}</p>
-        </div>
-      </section>
+      {/* Description */}
+      <MotionWrapper delay={0.4}>
+        <section className="mb-8">
+          <h2 className="mb-3 text-xl font-semibold text-[#09637e]">Description</h2>
+          <MotionCard>
+            <div className="rounded-2xl border border-[#d1eef2] bg-white p-6">
+              <p className="text-gray-700 leading-relaxed">{opportunity.description}</p>
+            </div>
+          </MotionCard>
+        </section>
+      </MotionWrapper>
 
-      <section className="mb-8">
-        <h2 className="mb-3 text-xl font-semibold text-[#09637e]">{t('requirements')}</h2>
-        <div className="rounded-2xl border border-[#d1eef2] bg-white p-6">
-          <ul className="list-disc pl-5 space-y-1.5 text-gray-700">
-            {opportunity.requirements.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      {/* Requirements */}
+      <MotionWrapper delay={0.5}>
+        <section className="mb-8">
+          <h2 className="mb-3 text-xl font-semibold text-[#09637e]">Requirements</h2>
+          <MotionCard>
+            <div className="rounded-2xl border border-[#d1eef2] bg-white p-6">
+              <ul className="list-disc pl-5 space-y-1.5 text-gray-700">
+                {opportunity.requirements.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </MotionCard>
+        </section>
+      </MotionWrapper>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#d1eef2] bg-white p-6">
-        <div>
-          <p className="text-sm text-gray-500">{t('ready')}</p>
-          <p className="font-medium text-[#09637e]">{opportunity.organization}</p>
+      {/* Apply Section */}
+      <MotionWrapper delay={0.6}>
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#d1eef2] bg-white p-6">
+          <div>
+            <p className="text-sm text-gray-500">Ready to apply?</p>
+            <p className="font-medium text-[#09637e]">{opportunity.organization}</p>
+          </div>
+          <div className="flex gap-3">
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              href={opportunity.applyLink}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]"
+            >
+              Apply Now →
+            </motion.a>
+            <Link
+              href={`/${locale}/opportunities`}
+              className="rounded-xl border border-[#d1eef2] px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
+            >
+              Back
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-3">
-          <a
-            href={opportunity.applyLink}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]"
-          >
-            {t('apply')} →
-          </a>
-          <Link
-            href={`/${locale}/opportunities`}
-            className="rounded-xl border border-[#d1eef2] px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
-          >
-            {common('back')}
-          </Link>
-        </div>
-      </div>
+      </MotionWrapper>
     </main>
   );
 }

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Plus, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import OpportunityCard from './components/OpportunityCard';
 import { useOpportunities } from '@/context/OpportunitiesContext';
@@ -118,7 +119,12 @@ export default function OpportunitiesPage() {
   return (
     <main className="min-h-screen bg-[var(--color-background)] py-10">
       <section className="container-custom">
-        <div className="mb-10">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-10"
+        >
           <div className="mb-6 flex justify-center">
             <Image
               src="/illustrations/illustration-opportunities.svg"
@@ -147,9 +153,14 @@ export default function OpportunitiesPage() {
               <span className="sm:hidden">{common('add')}</span>
             </Link>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="mb-4 grid gap-4 md:grid-cols-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="mb-4 grid gap-4 md:grid-cols-2"
+        >
           <input
             type="text"
             placeholder={t('search')}
@@ -171,7 +182,7 @@ export default function OpportunitiesPage() {
             <option value="Volunteer">{common('volunteer')}</option>
             <option value="Course">{common('course')}</option>
           </select>
-        </div>
+        </motion.div>
 
         <button
           onClick={() => setShowFilters(!showFilters)}
@@ -186,65 +197,75 @@ export default function OpportunitiesPage() {
           )}
         </button>
 
-        {showFilters && (
-          <div className="mb-6 grid gap-4 rounded-2xl border border-[#d1eef2] bg-white p-4 md:grid-cols-3">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('location')}</label>
-              <select
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 outline-none transition focus:border-[#09637e]"
-              >
-                {uniqueLocations.map((loc) => (
-                  <option key={loc} value={loc}>
-                    {loc}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden mb-6"
+            >
+              <div className="grid gap-4 rounded-2xl border border-[#d1eef2] bg-white p-4 md:grid-cols-3">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('location')}</label>
+                  <select
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 outline-none transition focus:border-[#09637e]"
+                  >
+                    {uniqueLocations.map((loc) => (
+                      <option key={loc} value={loc}>
+                        {loc}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('type')}</label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                className="w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 outline-none transition focus:border-[#09637e]"
-              >
-                <option value="All">{common('allTypes')}</option>
-                <option value="Remote">{common('remote')}</option>
-                <option value="OnSite">{common('onSite')}</option>
-                <option value="Hybrid">{common('hybrid')}</option>
-              </select>
-            </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('type')}</label>
+                  <select
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                    className="w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 outline-none transition focus:border-[#09637e]"
+                  >
+                    <option value="All">{common('allTypes')}</option>
+                    <option value="Remote">{common('remote')}</option>
+                    <option value="OnSite">{common('onSite')}</option>
+                    <option value="Hybrid">{common('hybrid')}</option>
+                  </select>
+                </div>
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('deadline')}</label>
-              <select
-                value={deadlineFilter}
-                onChange={(e) => setDeadlineFilter(e.target.value)}
-                className="w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 outline-none transition focus:border-[#09637e]"
-              >
-                <option value="All">{t('allDeadlines')}</option>
-                <option value="This week">{t('thisWeek')}</option>
-                <option value="This month">{t('thisMonth')}</option>
-                <option value="Upcoming">{t('upcoming')}</option>
-                <option value="Expired">{t('expired')}</option>
-              </select>
-            </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('deadline')}</label>
+                  <select
+                    value={deadlineFilter}
+                    onChange={(e) => setDeadlineFilter(e.target.value)}
+                    className="w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 outline-none transition focus:border-[#09637e]"
+                  >
+                    <option value="All">{t('allDeadlines')}</option>
+                    <option value="This week">{t('thisWeek')}</option>
+                    <option value="This month">{t('thisMonth')}</option>
+                    <option value="Upcoming">{t('upcoming')}</option>
+                    <option value="Expired">{t('expired')}</option>
+                  </select>
+                </div>
 
-            {hasActiveFilters && (
-              <div className="md:col-span-3 flex justify-end">
-                <button
-                  onClick={clearFilters}
-                  className="inline-flex items-center gap-1 text-sm text-[#09637e] transition hover:text-[#075a6b]"
-                >
-                  <X size={16} />
-                  {t('clearFilters')}
-                </button>
+                {hasActiveFilters && (
+                  <div className="md:col-span-3 flex justify-end">
+                    <button
+                      onClick={clearFilters}
+                      className="inline-flex items-center gap-1 text-sm text-[#09637e] transition hover:text-[#075a6b]"
+                    >
+                      <X size={16} />
+                      {t('clearFilters')}
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {loading ? (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -259,7 +280,11 @@ export default function OpportunitiesPage() {
             ))}
           </div>
         ) : filteredOpportunities.length === 0 ? (
-          <div className="flex flex-col items-center rounded-2xl border border-dashed border-[#a8d8df] p-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center rounded-2xl border border-dashed border-[#a8d8df] p-10 text-center"
+          >
             <Image
               src="/illustrations/illustration-opportunities.svg"
               alt="No opportunities found"
@@ -277,19 +302,36 @@ export default function OpportunitiesPage() {
                 {t('clearFilters')}
               </button>
             )}
-          </div>
+          </motion.div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {filteredOpportunities.map((opportunity) => (
-              <OpportunityCard key={opportunity.id} opportunity={opportunity} />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, staggerChildren: 0.05 }}
+            className="grid gap-6 md:grid-cols-2 xl:grid-cols-3"
+          >
+            {filteredOpportunities.map((opportunity, index) => (
+              <motion.div
+                key={opportunity.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+              >
+                <OpportunityCard opportunity={opportunity} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {!loading && filteredOpportunities.length > 0 && (
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-6 text-center text-sm text-gray-500"
+          >
             {t('showing')} {filteredOpportunities.length} {common('of')} {opportunities.length} {t('opportunities')}
-          </p>
+          </motion.p>
         )}
       </section>
     </main>
