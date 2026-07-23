@@ -21,119 +21,107 @@ import { usePathname } from 'next/navigation';
 import { opportunities } from '@/features/opportunities/data';
 import { MotionWrapper, MotionCard, MotionStagger } from '@/components/ui/MotionWrapper';
 import { motion } from 'framer-motion';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { DASHBOARD_TYPE_DATA, DASHBOARD_CATEGORY_DATA, DASHBOARD_TYPE_KEYS } from '@/constants/dashboard';
+import { CATEGORY_TAG_CLASSES } from '@/constants/categories';
 
-const typeData = [
-  {name: 'Remote', value: 59, color: '#09637e'},
-  {name: 'On-site', value: 28, color: '#7c3aed'},
-  {name: 'Hybrid', value: 13, color: '#f59e0b'},
-];
-
-const categoryData = [
-  {label: 'Jobs', value: 45, max: 120, color: '#09637e'},
-  {label: 'Internships', value: 33, max: 120, color: '#7c3aed'},
-  {label: 'Scholarships', value: 28, max: 120, color: '#f59e0b'},
-  {label: 'Remote', value: 14, max: 120, color: '#10b981'},
-  {label: 'Training', value: 6, max: 120, color: '#f43f5e'},
-];
-
-// Map برای تبدیل نام‌های نوع به کلیدهای ترجمه
-const typeKeys: Record<string, string> = {
-  'Remote': 'remote',
-  'On-site': 'onSite',
-  'Hybrid': 'hybrid',
-};
-
-function useCountUp(target: number, duration = 1500) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    let start = 0;
-    const step = target / (duration / 16);
-    ref.current = setInterval(() => {
-      start += step;
-      if (start >= target) {
-        setCount(target);
-        clearInterval(ref.current!);
-      } else {
-        setCount(Math.floor(start));
-      }
-    }, 16);
-    return () => clearInterval(ref.current!);
-  }, [target, duration]);
-
-  return count;
-}
-
-function StatCard({
-  icon: Icon,
-  num,
-  label,
-  change,
-  changeLabel,
-  iconBg,
-  iconColor,
-  delay,
-}: {
-  icon: React.ElementType;
-  num: number;
-  label: string;
-  change: string;
-  changeLabel: string;
-  iconBg: string;
-  iconColor: string;
-  delay: number;
-}) {
-  const count = useCountUp(num);
-
+// ============ SKELETON COMPONENT ============
+function DashboardSkeleton() {
   return (
-    <MotionCard delay={delay / 1000}>
-      <div className="rounded-2xl border border-[#d1eef2] bg-white p-5 shadow-sm">
-        <div
-          className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl"
-          style={{background: iconBg, color: iconColor}}
-        >
-          <Icon size={20} />
+    <div className="animate-pulse">
+      {/* Header Skeleton */}
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <div className="mb-2 h-5 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="h-8 w-48 rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="mt-1 h-4 w-64 rounded bg-gray-200 dark:bg-gray-700" />
         </div>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: delay / 1000 + 0.2, type: 'spring' }}
-          className="text-3xl font-bold text-[#09637e]"
-        >
-          {count}
-        </motion.div>
-        <div className="mt-1 text-sm text-[var(--color-text-secondary)]">{label}</div>
-        <div className="mt-2 flex items-center gap-1 text-xs font-medium text-emerald-600">
-          <TrendingUp size={12} />
-          {change} {changeLabel}
+        <div className="hidden h-8 w-32 rounded-xl bg-gray-200 dark:bg-gray-700 md:block" />
+      </div>
+
+      {/* Flow line Skeleton */}
+      <div className="mb-8 h-0.5 w-full rounded-full bg-gray-200 dark:bg-gray-700" />
+
+      {/* Stats Skeleton */}
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
+            <div className="mb-3 h-10 w-10 rounded-xl bg-gray-200 dark:bg-gray-700" />
+            <div className="h-7 w-12 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="mt-1 h-4 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="mt-2 h-3 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+        ))}
+      </div>
+
+      {/* Charts Skeleton */}
+      <div className="mb-6 grid gap-6 md:grid-cols-[1.4fr_1fr]">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+          <div className="mb-5 flex items-center justify-between">
+            <div className="h-5 w-40 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-4 w-16 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div className="flex flex-col gap-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="h-3 w-16 rounded bg-gray-200 dark:bg-gray-700" />
+                <div className="h-2 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
+                <div className="h-3 w-6 rounded bg-gray-200 dark:bg-gray-700" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+          <div className="mb-4 h-5 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="mx-auto h-40 w-40 rounded-full bg-gray-200 dark:bg-gray-700" />
+          <div className="mt-4 flex flex-col gap-2">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div className="h-2.5 w-2.5 rounded-full bg-gray-200 dark:bg-gray-700" />
+                <div className="h-3 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </MotionCard>
-  );
-}
 
-function BarRow({label, value, max, color, delay}: {label: string; value: number; max: number; color: string; delay: number}) {
-  const [width, setWidth] = useState(0);
-
-  useEffect(() => {
-    const t = setTimeout(() => setWidth((value / max) * 100), delay);
-    return () => clearTimeout(t);
-  }, [value, max, delay]);
-
-  return (
-    <div className="flex items-center gap-3">
-      <div className="w-20 shrink-0 text-right text-xs text-[var(--color-text-secondary)]">{label}</div>
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#ebf4f6]">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${width}%` }}
-          transition={{ duration: 1, ease: 'easeOut', delay: delay / 1000 }}
-          className="h-full rounded-full"
-          style={{ background: color }}
-        />
+      {/* Bottom row Skeleton */}
+      <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="h-5 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-4 w-16 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div className="flex flex-col gap-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 py-3 last:border-none">
+                <div>
+                  <div className="h-4 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="mt-1 h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+                </div>
+                <div className="h-5 w-16 rounded-full bg-gray-200 dark:bg-gray-700" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="h-5 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-4 w-16 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div className="flex flex-col gap-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 py-3 last:border-none">
+                <div>
+                  <div className="h-4 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="mt-1 h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+                </div>
+                <div className="h-5 w-12 rounded-full bg-gray-200 dark:bg-gray-700" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      <div className="w-6 shrink-0 text-xs text-[var(--color-text-secondary)]">{value}</div>
     </div>
   );
 }
@@ -145,6 +133,14 @@ export default function DashboardPage() {
   const locale = pathname.split('/')[1] || 'en';
   const t = useTranslations('dashboard');
   const common = useTranslations('common');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const expiring = opportunities
     .map((o) => ({
@@ -159,15 +155,31 @@ export default function DashboardPage() {
 
   const recent = [...opportunities].reverse().slice(0, 5);
 
-  const tagClass: Record<string, string> = {
-    Job: 'bg-[#d1eef2] text-[#09637e]',
-    Internship: 'bg-[#ede9fe] text-purple-700',
-    Scholarship: 'bg-[#fef3c7] text-yellow-700',
-    Remote: 'bg-[#d1fae5] text-green-700',
-    Training: 'bg-[#fee2e2] text-red-700',
-    Volunteer: 'bg-[#e0e7ff] text-indigo-700',
-    Course: 'bg-[#fce7f3] text-pink-700',
-  };
+  // Skeleton Loading
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[var(--color-background)]">
+        <section className="container-custom py-12">
+          <DashboardSkeleton />
+        </section>
+      </main>
+    );
+  }
+
+  // Empty State
+  if (opportunities.length === 0) {
+    return (
+      <main className="min-h-screen bg-[var(--color-background)]">
+        <section className="container-custom py-12">
+          <EmptyState
+            image="/illustrations/illustration-dashboard.svg"
+            title="No data available"
+            description="There are no opportunities to display in the dashboard yet."
+          />
+        </section>
+      </main>
+    );
+  }
 
   return (
     <>
@@ -268,7 +280,7 @@ export default function DashboardPage() {
                   <span className="text-xs text-[var(--color-text-secondary)]">{t('thisMonth')}</span>
                 </div>
                 <div className="flex flex-col gap-4">
-                  {categoryData.map((item, i) => (
+                  {DASHBOARD_CATEGORY_DATA.map((item, i) => (
                     <BarRow key={item.label} {...item} delay={600 + i * 100} />
                   ))}
                 </div>
@@ -282,7 +294,7 @@ export default function DashboardPage() {
                 <ResponsiveContainer width="100%" height={160}>
                   <PieChart>
                     <Pie
-                      data={typeData}
+                      data={DASHBOARD_TYPE_DATA}
                       cx="50%"
                       cy="50%"
                       innerRadius={50}
@@ -292,7 +304,7 @@ export default function DashboardPage() {
                       animationBegin={600}
                       animationDuration={1000}
                     >
-                      {typeData.map((entry, i) => (
+                      {DASHBOARD_TYPE_DATA.map((entry, i) => (
                         <Cell key={i} fill={entry.color} />
                       ))}
                     </Pie>
@@ -300,10 +312,10 @@ export default function DashboardPage() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="mt-2 flex flex-col gap-2">
-                  {typeData.map((item) => (
+                  {DASHBOARD_TYPE_DATA.map((item) => (
                     <div key={item.name} className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
                       <div className="h-2.5 w-2.5 rounded-full" style={{background: item.color}} />
-                      {common(typeKeys[item.name] || item.name.toLowerCase())} ({item.value}%)
+                      {common(DASHBOARD_TYPE_KEYS[item.name] || item.name.toLowerCase())} ({item.value}%)
                     </div>
                   ))}
                 </div>
@@ -334,7 +346,7 @@ export default function DashboardPage() {
                         <div className="text-sm font-medium text-[var(--color-text-primary)]">{o.title}</div>
                         <div className="mt-0.5 text-xs text-[var(--color-text-secondary)]">{o.organization}</div>
                       </div>
-                      <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${tagClass[o.category] ?? 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${CATEGORY_TAG_CLASSES[o.category as keyof typeof CATEGORY_TAG_CLASSES] || 'bg-gray-100 text-gray-600'}`}>
                         {o.category}
                       </span>
                     </motion.div>
@@ -384,4 +396,99 @@ export default function DashboardPage() {
       </main>
     </>
   );
+}
+
+function StatCard({
+  icon: Icon,
+  num,
+  label,
+  change,
+  changeLabel,
+  iconBg,
+  iconColor,
+  delay,
+}: {
+  icon: React.ElementType;
+  num: number;
+  label: string;
+  change: string;
+  changeLabel: string;
+  iconBg: string;
+  iconColor: string;
+  delay: number;
+}) {
+  const count = useCountUp(num);
+
+  return (
+    <MotionCard delay={delay / 1000}>
+      <div className="rounded-2xl border border-[#d1eef2] bg-white dark:bg-gray-800 p-5 shadow-sm">
+        <div
+          className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl"
+          style={{background: iconBg, color: iconColor}}
+        >
+          <Icon size={20} />
+        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: delay / 1000 + 0.2, type: 'spring' }}
+          className="text-3xl font-bold text-[#09637e] dark:text-white"
+        >
+          {count}
+        </motion.div>
+        <div className="mt-1 text-sm text-[var(--color-text-secondary)] dark:text-gray-400">{label}</div>
+        <div className="mt-2 flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+          <TrendingUp size={12} />
+          {change} {changeLabel}
+        </div>
+      </div>
+    </MotionCard>
+  );
+}
+
+function BarRow({label, value, max, color, delay}: {label: string; value: number; max: number; color: string; delay: number}) {
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const t = setTimeout(() => setWidth((value / max) * 100), delay);
+    return () => clearTimeout(t);
+  }, [value, max, delay]);
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="w-20 shrink-0 text-right text-xs text-[var(--color-text-secondary)] dark:text-gray-400">{label}</div>
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#ebf4f6] dark:bg-gray-700">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${width}%` }}
+          transition={{ duration: 1, ease: 'easeOut', delay: delay / 1000 }}
+          className="h-full rounded-full"
+          style={{ background: color }}
+        />
+      </div>
+      <div className="w-6 shrink-0 text-xs text-[var(--color-text-secondary)] dark:text-gray-400">{value}</div>
+    </div>
+  );
+}
+
+function useCountUp(target: number, duration = 1500) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    let start = 0;
+    const step = target / (duration / 16);
+    ref.current = setInterval(() => {
+      start += step;
+      if (start >= target) {
+        setCount(target);
+        clearInterval(ref.current!);
+      } else {
+        setCount(Math.floor(start));
+      }
+    }, 16);
+    return () => clearInterval(ref.current!);
+  }, [target, duration]);
+
+  return count;
 }

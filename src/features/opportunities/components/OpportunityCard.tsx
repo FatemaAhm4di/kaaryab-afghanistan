@@ -9,19 +9,10 @@ import type { Opportunity } from '@/features/opportunities/types';
 import { useSavedOpportunities } from '@/context/SavedOpportunitiesContext';
 import { useOpportunities } from '@/context/OpportunitiesContext';
 import { useTheme } from '@/context/ThemeContext';
+import { CATEGORY_COLORS, CATEGORY_TAG_CLASSES } from '@/constants/categories';
 
 type Props = {
   opportunity: Opportunity;
-};
-
-const categoryColors: Record<string, { bg: string; text: string; darkBg: string; darkText: string }> = {
-  Job: { bg: '#d1eef2', text: '#09637e', darkBg: '#1e3a4a', darkText: '#38bdf8' },
-  Internship: { bg: '#ede9fe', text: '#5b21b6', darkBg: '#2e1065', darkText: '#a78bfa' },
-  Scholarship: { bg: '#fef3c7', text: '#92400e', darkBg: '#3d2000', darkText: '#fbbf24' },
-  Remote: { bg: '#d1fae5', text: '#065f46', darkBg: '#052e16', darkText: '#34d399' },
-  Training: { bg: '#ffedd5', text: '#9a3412', darkBg: '#3d1200', darkText: '#fb923c' },
-  Volunteer: { bg: '#fce7f3', text: '#9d174d', darkBg: '#3d0020', darkText: '#f472b6' },
-  Course: { bg: '#dbeafe', text: '#1e40af', darkBg: '#1e1b4b', darkText: '#60a5fa' },
 };
 
 function DeadlineCountdown({ deadline }: { deadline: string }) {
@@ -93,6 +84,8 @@ export default function OpportunityCard({ opportunity }: Props) {
   useEffect(() => setMounted(true), []);
 
   const saved = mounted ? isSaved(opportunity.id) : false;
+  const colors = CATEGORY_COLORS[opportunity.category as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS.Job;
+  const tagClass = CATEGORY_TAG_CLASSES[opportunity.category as keyof typeof CATEGORY_TAG_CLASSES] || CATEGORY_TAG_CLASSES.Job;
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -100,8 +93,6 @@ export default function OpportunityCard({ opportunity }: Props) {
     setDeleting(false);
     setShowDeleteModal(false);
   };
-
-  const colors = categoryColors[opportunity.category];
 
   return (
     <>
@@ -123,10 +114,10 @@ export default function OpportunityCard({ opportunity }: Props) {
               animate={{ scale: 1 }}
               transition={{ delay: 0.1, type: 'spring' }}
               style={{
-                backgroundColor: isDark ? (colors?.darkBg ?? '#1e293b') : (colors?.bg ?? '#f3f4f6'),
-                color: isDark ? (colors?.darkText ?? '#cbd5e1') : (colors?.text ?? '#374151'),
+                backgroundColor: isDark ? colors.darkBg : colors.bg,
+                color: isDark ? colors.darkText : colors.text,
               }}
-              className="inline-block rounded-full px-3 py-1 text-xs font-semibold"
+              className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${tagClass}`}
             >
               {opportunity.category}
             </motion.span>
@@ -143,7 +134,7 @@ export default function OpportunityCard({ opportunity }: Props) {
             onClick={() => toggleSave(opportunity.id)}
             whileTap={{ scale: 0.8 }}
             style={{ color: saved ? '#09637e' : (isDark ? '#64748b' : '#9ca3af') }}
-            className="shrink-0 p-2 rounded-xl transition hover:bg-gray-100"
+            className="shrink-0 p-2 rounded-xl transition hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <Bookmark size={18} className={saved ? 'fill-current' : ''} />
           </motion.button>
@@ -192,7 +183,7 @@ export default function OpportunityCard({ opportunity }: Props) {
               <Link
                 href={`/${locale}/opportunities/${opportunity.id}/edit`}
                 style={{ color: isDark ? '#64748b' : '#9ca3af' }}
-                className="flex items-center gap-1 rounded-lg p-1.5 transition hover:bg-[#d1eef2] hover:text-[#09637e]"
+                className="flex items-center gap-1 rounded-lg p-1.5 transition hover:bg-[#d1eef2] hover:text-[#09637e] dark:hover:bg-gray-700"
                 title="Edit"
               >
                 <Pencil size={15} />
@@ -203,7 +194,7 @@ export default function OpportunityCard({ opportunity }: Props) {
                 type="button"
                 onClick={() => setShowDeleteModal(true)}
                 style={{ color: isDark ? '#64748b' : '#9ca3af' }}
-                className="flex items-center gap-1 rounded-lg p-1.5 transition hover:bg-red-50 hover:text-red-500"
+                className="flex items-center gap-1 rounded-lg p-1.5 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
                 title="Delete"
               >
                 <Trash2 size={15} />
@@ -211,7 +202,7 @@ export default function OpportunityCard({ opportunity }: Props) {
             </motion.div>
             <Link
               href={`/${locale}/opportunities/${opportunity.id}`}
-              className="flex items-center gap-1.5 text-sm font-semibold text-[#09637e] hover:gap-2.5 transition-all"
+              className="flex items-center gap-1.5 text-sm font-semibold text-[#09637e] hover:gap-2.5 transition-all dark:text-[#088395]"
             >
               View
               <motion.span
@@ -247,7 +238,7 @@ export default function OpportunityCard({ opportunity }: Props) {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.1, type: 'spring' }}
-                className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50"
+                className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 dark:bg-red-900/20"
               >
                 <Trash2 size={22} className="text-red-500" />
               </motion.div>
@@ -262,7 +253,7 @@ export default function OpportunityCard({ opportunity }: Props) {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 rounded-xl border border-[#d1eef2] py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
+                  className="flex-1 rounded-xl border border-[#d1eef2] dark:border-gray-700 py-2.5 text-sm font-semibold text-[#09637e] dark:text-[#088395] transition hover:bg-[#d1eef2] dark:hover:bg-gray-700"
                 >
                   Cancel
                 </motion.button>

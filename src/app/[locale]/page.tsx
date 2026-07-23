@@ -5,8 +5,86 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { useOpportunities } from '@/context/OpportunitiesContext';
-import { Briefcase, GraduationCap, BookOpen, Globe, Users, MapPin, Clock, Heart } from 'lucide-react';
+import { MapPin, Clock, Heart } from 'lucide-react';
 import { MotionWrapper, MotionStagger, MotionCard } from '@/components/ui/MotionWrapper';
+import { PageSkeleton, CardSkeleton } from '@/components/ui/PageSkeleton';
+import {
+  CATEGORY_ICONS,
+  CATEGORY_COLORS,
+  CATEGORY_BG_COLORS,
+} from '@/constants/categories';
+
+// ============ HOME SKELETON ============
+function HomeSkeleton() {
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-[var(--color-background)]">
+      <div className="absolute -left-24 -top-24 h-[400px] w-[400px] rounded-full bg-[var(--color-primary)] opacity-15 blur-3xl" />
+      <div className="absolute -bottom-28 -right-24 h-[450px] w-[450px] rounded-full bg-[var(--color-secondary)] opacity-15 blur-3xl" />
+      
+      <section className="container-custom flex min-h-[calc(100vh-80px)] flex-col items-center justify-center py-12 md:py-20">
+        <div className="w-full max-w-4xl text-center animate-pulse">
+          {/* Illustration Skeleton */}
+          <div className="mb-6 flex justify-center">
+            <div className="h-[180px] w-[180px] rounded-2xl bg-gray-200 dark:bg-gray-700 md:h-[320px] md:w-[320px]" />
+          </div>
+
+          {/* Badge Skeleton */}
+          <div className="mb-6 inline-flex h-9 w-48 rounded-full bg-gray-200 dark:bg-gray-700" />
+
+          {/* Title Skeleton */}
+          <div className="mx-auto h-12 w-3/4 rounded-lg bg-gray-200 dark:bg-gray-700 md:h-16" />
+
+          {/* Subtitle Skeleton */}
+          <div className="mx-auto mt-4 h-4 w-1/2 rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="mx-auto mt-2 h-4 w-1/3 rounded bg-gray-200 dark:bg-gray-700" />
+
+          {/* Buttons Skeleton */}
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <div className="h-12 w-48 rounded-xl bg-gray-200 dark:bg-gray-700" />
+            <div className="h-12 w-40 rounded-xl bg-gray-200 dark:bg-gray-700" />
+          </div>
+
+          {/* Stats Skeleton */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="text-center">
+                <div className="h-8 w-16 rounded bg-gray-200 dark:bg-gray-700" />
+                <div className="mt-1 h-3 w-12 rounded bg-gray-200 dark:bg-gray-700" />
+              </div>
+            ))}
+          </div>
+
+          {/* Categories Skeleton */}
+          <div className="mt-8 w-full">
+            <div className="mx-auto mb-4 h-5 w-40 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
+                  <div className="h-10 w-10 rounded-xl bg-gray-200 dark:bg-gray-700" />
+                  <div className="text-left">
+                    <div className="h-3 w-16 rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="mt-1 h-4 w-12 rounded bg-gray-200 dark:bg-gray-700" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Featured Skeleton */}
+          <div className="mt-12 w-full text-left">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="h-6 w-40 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+            </div>
+            <PageSkeleton count={4} gridCols="md:grid-cols-2 lg:grid-cols-4">
+              <CardSkeleton />
+            </PageSkeleton>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
 
 export default function HomePage() {
   const pathname = usePathname();
@@ -15,6 +93,11 @@ export default function HomePage() {
   const common = useTranslations('common');
   const { opportunities, loading } = useOpportunities();
 
+  // اگر در حال لودینگ هستیم، اسکلت رو نشون بده
+  if (loading) {
+    return <HomeSkeleton />;
+  }
+
   const stats = {
     total: opportunities.length,
     jobs: opportunities.filter((o) => o.category === 'Job').length,
@@ -22,36 +105,6 @@ export default function HomePage() {
     scholarships: opportunities.filter((o) => o.category === 'Scholarship').length,
     remote: opportunities.filter((o) => o.type === 'Remote').length,
     categories: new Set(opportunities.map((o) => o.category)).size,
-  };
-
-  const categoryIcons: Record<string, React.ReactNode> = {
-    'Job': <Briefcase size={20} />,
-    'Internship': <GraduationCap size={20} />,
-    'Scholarship': <BookOpen size={20} />,
-    'Remote': <Globe size={20} />,
-    'Training': <Users size={20} />,
-    'Volunteer': <Users size={20} />,
-    'Course': <BookOpen size={20} />,
-  };
-
-  const categoryColors: Record<string, string> = {
-    'Job': 'border-[#d1eef2] bg-white text-[#09637e]',
-    'Internship': 'border-[#ddd6fe] bg-white text-purple-700',
-    'Scholarship': 'border-[#fde68a] bg-white text-yellow-700',
-    'Remote': 'border-[#a7f3d0] bg-white text-green-700',
-    'Training': 'border-[#fbcfe8] bg-white text-pink-700',
-    'Volunteer': 'border-[#bfdbfe] bg-white text-blue-700',
-    'Course': 'border-[#fed7aa] bg-white text-orange-700',
-  };
-
-  const categoryBgColors: Record<string, string> = {
-    'Job': 'bg-[#d1eef2]',
-    'Internship': 'bg-[#ede9fe]',
-    'Scholarship': 'bg-[#fef3c7]',
-    'Remote': 'bg-[#d1fae5]',
-    'Training': 'bg-[#fce7f3]',
-    'Volunteer': 'bg-[#dbeafe]',
-    'Course': 'bg-[#ffedd5]',
   };
 
   const featuredOpportunities = opportunities.slice(0, 4);
@@ -151,10 +204,10 @@ export default function HomePage() {
                     <MotionCard key={category} delay={index * 0.1}>
                       <Link
                         href={`/${locale}/opportunities?category=${category}`}
-                        className={`flex items-center gap-3 rounded-2xl border px-4 py-3 transition hover:shadow-md ${categoryColors[category]}`}
+                        className={`flex items-center gap-3 rounded-2xl border px-4 py-3 transition hover:shadow-md ${CATEGORY_COLORS[category]}`}
                       >
-                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${categoryBgColors[category]}`}>
-                          {categoryIcons[category]}
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${CATEGORY_BG_COLORS[category]}`}>
+                          {CATEGORY_ICONS[category]}
                         </div>
                         <div className="text-left">
                           <div className="text-xs text-[var(--color-text-secondary)]">{t(category.toLowerCase())}</div>
@@ -172,9 +225,11 @@ export default function HomePage() {
             <MotionWrapper delay={0.8}>
               <div className="mt-12 w-full text-left">
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-[var(--color-primary-dark)] md:text-xl">
-                    {t('featured')}
-                  </h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-[var(--color-primary-dark)] md:text-xl">
+                      {t('featured')}
+                    </span>
+                  </div>
                   <Link
                     href={`/${locale}/opportunities`}
                     className="text-sm font-medium text-[var(--color-primary-dark)] transition hover:opacity-70"

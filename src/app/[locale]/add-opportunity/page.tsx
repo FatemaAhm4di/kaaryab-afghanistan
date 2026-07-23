@@ -6,9 +6,72 @@ import { Plus, Send, X } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { MotionWrapper, MotionCard } from '@/components/ui/MotionWrapper';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { PageSkeleton, CardSkeleton } from '@/components/ui/PageSkeleton';
 
 const inputClass =
-  'w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 text-sm text-[#1f2937] outline-none transition focus:border-[#09637e] focus:ring-2 focus:ring-[#d1eef2]';
+  'w-full rounded-xl border border-[#d1eef2] bg-white dark:bg-gray-800 dark:border-gray-700 px-4 py-2.5 text-sm text-[#1f2937] dark:text-white outline-none transition focus:border-[#09637e] dark:focus:border-[#088395] focus:ring-2 focus:ring-[#d1eef2] dark:focus:ring-gray-700';
+
+// ============ SKELETON ============
+function AddOpportunitySkeleton() {
+  return (
+    <main className="min-h-screen bg-[var(--color-background)]">
+      <section className="container-custom py-16">
+        <div className="mx-auto max-w-2xl animate-pulse">
+          {/* Header Skeleton */}
+          <div className="mb-8 flex flex-col items-center text-center">
+            <div className="mb-6 h-[180px] w-[220px] rounded-2xl bg-gray-200 dark:bg-gray-700" />
+            <div className="mb-4 h-8 w-32 rounded-full bg-gray-200 dark:bg-gray-700" />
+            <div className="mb-3 h-10 w-64 rounded-lg bg-gray-200 dark:bg-gray-700" />
+            <div className="h-5 w-96 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+
+          {/* Form Skeleton */}
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8">
+            <div className="space-y-6">
+              <div className="h-4 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <div className="mb-1.5 h-4 w-16 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-11 w-full rounded-xl bg-gray-200 dark:bg-gray-700" />
+                </div>
+                <div className="md:col-span-2">
+                  <div className="mb-1.5 h-4 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-11 w-full rounded-xl bg-gray-200 dark:bg-gray-700" />
+                </div>
+                {[...Array(4)].map((_, i) => (
+                  <div key={i}>
+                    <div className="mb-1.5 h-4 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="h-11 w-full rounded-xl bg-gray-200 dark:bg-gray-700" />
+                  </div>
+                ))}
+              </div>
+              <div className="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="space-y-4">
+                <div>
+                  <div className="mb-1.5 h-4 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-24 w-full rounded-xl bg-gray-200 dark:bg-gray-700" />
+                </div>
+                <div>
+                  <div className="mb-1.5 h-4 w-28 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-20 w-full rounded-xl bg-gray-200 dark:bg-gray-700" />
+                </div>
+                <div>
+                  <div className="mb-1.5 h-4 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-11 w-full rounded-xl bg-gray-200 dark:bg-gray-700" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3">
+                <div className="h-11 w-24 rounded-xl bg-gray-200 dark:bg-gray-700" />
+                <div className="h-11 w-40 rounded-xl bg-gray-200 dark:bg-gray-700" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
 
 export default function AddOpportunityPage() {
   const pathname = usePathname();
@@ -20,6 +83,8 @@ export default function AddOpportunityPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     title: '',
@@ -66,6 +131,7 @@ export default function AddOpportunityPage() {
     }
 
     setSubmitting(true);
+    setError(null);
 
     try {
       const opportunityData = {
@@ -99,9 +165,32 @@ export default function AddOpportunityPage() {
     } catch (error) {
       console.error('❌ Error:', error);
       setSubmitting(false);
-      alert('❌ خطا در ایجاد فرصت!\n' + error);
+      setError(error instanceof Error ? error.message : 'Failed to create opportunity');
     }
   };
+
+  // Skeleton Loading
+  if (loading) {
+    return <AddOpportunitySkeleton />;
+  }
+
+  // Error State
+  if (error) {
+    return (
+      <main className="min-h-screen bg-[var(--color-background)]">
+        <section className="container-custom py-16">
+          <ErrorState
+            title="Something went wrong"
+            message={error}
+            onRetry={() => {
+              setError(null);
+              setLoading(false);
+            }}
+          />
+        </section>
+      </main>
+    );
+  }
 
   if (submitted) {
     return (
@@ -111,7 +200,7 @@ export default function AddOpportunityPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: 'spring', damping: 25 }}
-            className="mx-auto flex max-w-md flex-col items-center rounded-2xl border border-[#d1eef2] bg-white py-16 text-center"
+            className="mx-auto flex max-w-md flex-col items-center rounded-2xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 py-16 text-center"
           >
             <motion.div
               initial={{ scale: 0 }}
@@ -126,15 +215,15 @@ export default function AddOpportunityPage() {
                 className="mb-6"
               />
             </motion.div>
-            <h2 className="mb-2 text-xl font-bold text-[#09637e]">✅ Opportunity submitted!</h2>
-            <p className="mb-6 max-w-xs text-sm text-[var(--color-text-secondary)]">
+            <h2 className="mb-2 text-xl font-bold text-[#09637e] dark:text-[#088395]">✅ Opportunity submitted!</h2>
+            <p className="mb-6 max-w-xs text-sm text-[var(--color-text-secondary)] dark:text-gray-400">
               Thank you for sharing. It will be reviewed shortly.
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push(`/${locale}/opportunities`)}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] dark:bg-[#088395] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
             >
               Browse opportunities →
             </motion.button>
@@ -158,14 +247,14 @@ export default function AddOpportunityPage() {
                 height={180}
                 className="mb-6"
               />
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-4 py-2 text-sm font-medium text-[#09637e]">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] dark:border-gray-700 bg-[#d1eef2] dark:bg-gray-800 px-4 py-2 text-sm font-medium text-[#09637e] dark:text-[#088395]">
                 <Plus size={14} />
                 New listing
               </div>
-              <h1 className="mb-3 text-3xl font-extrabold text-[#09637e] md:text-4xl">
+              <h1 className="mb-3 text-3xl font-extrabold text-[#09637e] dark:text-white md:text-4xl">
                 Add an opportunity
               </h1>
-              <p className="text-[var(--color-text-secondary)]">
+              <p className="text-[var(--color-text-secondary)] dark:text-gray-400">
                 Share a job, scholarship, internship, or remote work opportunity.
               </p>
             </div>
@@ -173,18 +262,18 @@ export default function AddOpportunityPage() {
 
           {/* Form */}
           <MotionWrapper delay={0.2}>
-            <form onSubmit={handleSubmit} className="rounded-2xl border border-[#d1eef2] bg-white p-8">
-              <p className="mb-6 text-xs text-[var(--color-text-secondary)]">
+            <form onSubmit={handleSubmit} className="rounded-2xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 p-8">
+              <p className="mb-6 text-xs text-[var(--color-text-secondary)] dark:text-gray-400">
                 <span className="text-red-500">*</span> Required fields
               </p>
 
-              <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
+              <p className="mb-4 border-b border-[#d1eef2] dark:border-gray-700 pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395] dark:text-[#088395]">
                 Basic information
               </p>
 
               <div className="mb-4 grid gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">
                     Title <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -198,7 +287,7 @@ export default function AddOpportunityPage() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">
                     Organization <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -212,7 +301,7 @@ export default function AddOpportunityPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Category <span className="text-red-500">*</span></label>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">Category <span className="text-red-500">*</span></label>
                   <select value={form.category} onChange={(e) => set('category', e.target.value)} className={inputClass}>
                     <option value="Job">Job</option>
                     <option value="Internship">Internship</option>
@@ -225,7 +314,7 @@ export default function AddOpportunityPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Type <span className="text-red-500">*</span></label>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">Type <span className="text-red-500">*</span></label>
                   <select value={form.type} onChange={(e) => set('type', e.target.value)} className={inputClass}>
                     <option value="Remote">Remote</option>
                     <option value="OnSite">On-site</option>
@@ -234,7 +323,7 @@ export default function AddOpportunityPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Location <span className="text-red-500">*</span></label>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">Location <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     placeholder="e.g. Kabul or Online"
@@ -246,7 +335,7 @@ export default function AddOpportunityPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Deadline <span className="text-red-500">*</span></label>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">Deadline <span className="text-red-500">*</span></label>
                   <input
                     type="date"
                     value={form.deadline}
@@ -257,13 +346,13 @@ export default function AddOpportunityPage() {
                 </div>
               </div>
 
-              <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
+              <p className="mb-4 border-b border-[#d1eef2] dark:border-gray-700 pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395] dark:text-[#088395]">
                 Details
               </p>
 
               <div className="mb-4 flex flex-col gap-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Description <span className="text-red-500">*</span></label>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">Description <span className="text-red-500">*</span></label>
                   <textarea
                     rows={4}
                     placeholder="Describe the opportunity..."
@@ -275,8 +364,8 @@ export default function AddOpportunityPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                    Requirements <span className="text-xs font-normal text-[var(--color-text-secondary)]">(one per line)</span>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">
+                    Requirements <span className="text-xs font-normal text-[var(--color-text-secondary)] dark:text-gray-400">(one per line)</span>
                   </label>
                   <textarea
                     rows={3}
@@ -288,7 +377,7 @@ export default function AddOpportunityPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">Apply link <span className="text-red-500">*</span></label>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">Apply link <span className="text-red-500">*</span></label>
                   <input
                     type="url"
                     placeholder="https://..."
@@ -300,11 +389,11 @@ export default function AddOpportunityPage() {
                 </div>
               </div>
 
-              <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
+              <p className="mb-4 border-b border-[#d1eef2] dark:border-gray-700 pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395] dark:text-[#088395]">
                 Tags
               </p>
 
-              <div className="mb-8 flex flex-wrap gap-2 rounded-xl border border-[#d1eef2] bg-white p-3">
+              <div className="mb-8 flex flex-wrap gap-2 rounded-xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
                 <AnimatePresence>
                   {tags.map((tag) => (
                     <motion.span
@@ -312,7 +401,7 @@ export default function AddOpportunityPage() {
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}
-                      className="flex items-center gap-1 rounded-full bg-[#d1eef2] px-3 py-1 text-xs font-medium text-[#09637e]"
+                      className="flex items-center gap-1 rounded-full bg-[#d1eef2] dark:bg-gray-700 px-3 py-1 text-xs font-medium text-[#09637e] dark:text-[#088395]"
                     >
                       {tag}
                       <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))}>
@@ -327,7 +416,7 @@ export default function AddOpportunityPage() {
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  className="min-w-[140px] flex-1 bg-transparent text-sm outline-none"
+                  className="min-w-[140px] flex-1 bg-transparent text-sm outline-none dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 />
               </div>
 
@@ -337,7 +426,7 @@ export default function AddOpportunityPage() {
                   whileTap={{ scale: 0.95 }}
                   type="button"
                   onClick={() => router.back()}
-                  className="rounded-xl border border-[#d1eef2] bg-white px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
+                  className="rounded-xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-2.5 text-sm font-semibold text-[#09637e] dark:text-[#088395] transition hover:bg-[#d1eef2] dark:hover:bg-gray-700"
                 >
                   Cancel
                 </motion.button>
@@ -346,7 +435,7 @@ export default function AddOpportunityPage() {
                   whileTap={{ scale: 0.95 }}
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] dark:bg-[#088395] px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
                 >
                   {submitting ? (
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

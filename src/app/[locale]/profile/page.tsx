@@ -11,6 +11,7 @@ import {User, Save, ArrowLeft, Pencil, LogOut, Camera, X} from 'lucide-react';
 import Link from 'next/link';
 import {useProfile} from '@/context/ProfileContext';
 import { useTranslations } from 'next-intl';
+import { ErrorState } from '@/components/ui/ErrorState';
 
 const schema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -28,15 +29,94 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const inputClass =
-  'w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 text-sm text-[#1f2937] outline-none transition focus:border-[#09637e] focus:ring-2 focus:ring-[#d1eef2]';
+  'w-full rounded-xl border border-[#d1eef2] bg-white dark:bg-gray-800 dark:border-gray-700 px-4 py-2.5 text-sm text-[#1f2937] dark:text-white outline-none transition focus:border-[#09637e] dark:focus:border-[#088395] focus:ring-2 focus:ring-[#d1eef2] dark:focus:ring-gray-700';
 
 const readonlyClass =
-  'w-full rounded-xl border border-[#d1eef2] bg-[#f8fbfc] px-4 py-2.5 text-sm text-[#1f2937]';
+  'w-full rounded-xl border border-[#d1eef2] dark:border-gray-700 bg-[#f8fbfc] dark:bg-gray-800 px-4 py-2.5 text-sm text-[#1f2937] dark:text-gray-300';
 
 const months = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
+
+// ============ SKELETON ============
+function ProfileSkeleton() {
+  return (
+    <main className="min-h-screen bg-[var(--color-background)]">
+      <section className="container-custom py-12 animate-pulse">
+        <div className="mx-auto max-w-2xl">
+          {/* Header Skeleton */}
+          <div className="mb-8 flex items-center justify-between">
+            <div className="h-5 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-9 w-24 rounded-xl bg-gray-200 dark:bg-gray-700" />
+          </div>
+
+          {/* Avatar Skeleton */}
+          <div className="mb-8 flex flex-col items-center text-center">
+            <div className="relative mb-4">
+              <div className="h-28 w-28 rounded-full bg-gray-200 dark:bg-gray-700" />
+            </div>
+            <div className="h-7 w-48 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="mt-1 h-4 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="mt-1 h-3 w-40 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="mt-4 h-9 w-32 rounded-xl bg-gray-200 dark:bg-gray-700" />
+          </div>
+
+          {/* Form Skeleton */}
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8">
+            <div className="space-y-6">
+              <div className="h-4 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="grid gap-4 md:grid-cols-2">
+                {[...Array(2)].map((_, i) => (
+                  <div key={i}>
+                    <div className="mb-1.5 h-4 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="h-11 w-full rounded-xl bg-gray-200 dark:bg-gray-700" />
+                  </div>
+                ))}
+                <div className="md:col-span-2">
+                  <div className="mb-1.5 h-4 w-28 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="grid grid-cols-3 gap-2">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="h-11 rounded-xl bg-gray-200 dark:bg-gray-700" />
+                    ))}
+                  </div>
+                </div>
+                <div className="md:col-span-2">
+                  <div className="mb-1.5 h-4 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-11 w-full rounded-xl bg-gray-200 dark:bg-gray-700" />
+                </div>
+              </div>
+              <div className="h-4 w-40 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="grid gap-4 md:grid-cols-2">
+                {[...Array(2)].map((_, i) => (
+                  <div key={i}>
+                    <div className="mb-1.5 h-4 w-16 rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="h-11 w-full rounded-xl bg-gray-200 dark:bg-gray-700" />
+                  </div>
+                ))}
+              </div>
+              <div className="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="space-y-4">
+                <div>
+                  <div className="mb-1.5 h-4 w-16 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-11 w-full rounded-xl bg-gray-200 dark:bg-gray-700" />
+                </div>
+                <div>
+                  <div className="mb-1.5 h-4 w-20 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-24 w-full rounded-xl bg-gray-200 dark:bg-gray-700" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3">
+                <div className="h-11 w-24 rounded-xl bg-gray-200 dark:bg-gray-700" />
+                <div className="h-11 w-32 rounded-xl bg-gray-200 dark:bg-gray-700" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
 
 export default function ProfilePage() {
   const pathname = usePathname();
@@ -71,34 +151,46 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const loadProfile = async () => {
-      const {data: {user}} = await supabase.auth.getUser();
-      if (!user) {router.push(`/${locale}/login`); return;}
-      setEmail(user.email ?? '');
+      try {
+        const {data: {user}} = await supabase.auth.getUser();
+        if (!user) {
+          router.push(`/${locale}/login`);
+          return;
+        }
+        setEmail(user.email ?? '');
 
-      const {data: profile} = await supabase
-        .from('Profile')
-        .select('*')
-        .eq('userId', user.id)
-        .single();
+        const {data: profile, error: profileError} = await supabase
+          .from('Profile')
+          .select('*')
+          .eq('userId', user.id)
+          .single();
 
-      if (profile) {
-        reset({
-          firstName: profile.firstName ?? '',
-          lastName: profile.lastName ?? '',
-          birthDay: profile.birthDay?.toString() ?? '',
-          birthMonth: profile.birthMonth?.toString() ?? '',
-          birthYear: profile.birthYear?.toString() ?? '',
-          gender: profile.gender ?? 'PreferNotToSay',
-          title: profile.title ?? '',
-          job: profile.job ?? '',
-          bio: profile.bio ?? '',
-          about: profile.about ?? '',
-        });
-        setGender(profile.gender ?? 'PreferNotToSay');
-        setAvatarUrl(profile.avatar ?? null);
-        setProfileData(profile);
+        if (profileError && profileError.code !== 'PGRST116') {
+          throw new Error(profileError.message);
+        }
+
+        if (profile) {
+          reset({
+            firstName: profile.firstName ?? '',
+            lastName: profile.lastName ?? '',
+            birthDay: profile.birthDay?.toString() ?? '',
+            birthMonth: profile.birthMonth?.toString() ?? '',
+            birthYear: profile.birthYear?.toString() ?? '',
+            gender: profile.gender ?? 'PreferNotToSay',
+            title: profile.title ?? '',
+            job: profile.job ?? '',
+            bio: profile.bio ?? '',
+            about: profile.about ?? '',
+          });
+          setGender(profile.gender ?? 'PreferNotToSay');
+          setAvatarUrl(profile.avatar ?? null);
+          setProfileData(profile);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load profile');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     loadProfile();
   }, [reset, router, locale]);
@@ -119,19 +211,23 @@ export default function ProfilePage() {
     setAvatarPreview(preview);
     setUploadingAvatar(true);
 
-    const {data: {user}} = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const {data: {user}} = await supabase.auth.getUser();
+      if (!user) return;
 
-    const ext = file.name.split('.').pop();
-    const path = `avatars/${user.id}.${ext}`;
+      const ext = file.name.split('.').pop();
+      const path = `avatars/${user.id}.${ext}`;
 
-    const {error: uploadError} = await supabase.storage
-      .from('avatars')
-      .upload(path, file, {upsert: true});
+      const {error: uploadError} = await supabase.storage
+        .from('avatars')
+        .upload(path, file, {upsert: true});
 
-    if (!uploadError) {
-      const {data} = supabase.storage.from('avatars').getPublicUrl(path);
-      setAvatarUrl(data.publicUrl);
+      if (!uploadError) {
+        const {data} = supabase.storage.from('avatars').getPublicUrl(path);
+        setAvatarUrl(data.publicUrl);
+      }
+    } catch (err) {
+      console.error('Avatar upload error:', err);
     }
 
     setUploadingAvatar(false);
@@ -148,43 +244,61 @@ export default function ProfilePage() {
     setError('');
     setSuccess(false);
 
-    const {data: {user}} = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const {data: {user}} = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
-    const {error: err} = await supabase
-      .from('Profile')
-      .upsert({
-        userId: user.id,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        birthDay: data.birthDay ? parseInt(data.birthDay) : null,
-        birthMonth: data.birthMonth ? parseInt(data.birthMonth) : null,
-        birthYear: data.birthYear ? parseInt(data.birthYear) : null,
-        gender: data.gender,
-        title: data.title,
-        job: data.job,
-        bio: data.bio,
-        about: data.about,
-        avatar: avatarUrl,
-        updatedAt: new Date().toISOString(),
-      }, {onConflict: 'userId'});
+      const {error: err} = await supabase
+        .from('Profile')
+        .upsert({
+          userId: user.id,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          birthDay: data.birthDay ? parseInt(data.birthDay) : null,
+          birthMonth: data.birthMonth ? parseInt(data.birthMonth) : null,
+          birthYear: data.birthYear ? parseInt(data.birthYear) : null,
+          gender: data.gender,
+          title: data.title,
+          job: data.job,
+          bio: data.bio,
+          about: data.about,
+          avatar: avatarUrl,
+          updatedAt: new Date().toISOString(),
+        }, {onConflict: 'userId'});
 
-    if (err) {
-      setError(err.message);
-    } else {
+      if (err) throw new Error(err.message);
+
       setSuccess(true);
       setEditMode(false);
       setProfileData({...profileData, ...data});
       await refreshProfile();
       setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save profile');
     }
     setSaving(false);
   };
 
+  // Skeleton Loading
   if (loading) {
+    return <ProfileSkeleton />;
+  }
+
+  // Error State
+  if (error && !editMode) {
     return (
-      <main className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#d1eef2] border-t-[#09637e]" />
+      <main className="min-h-screen bg-[var(--color-background)]">
+        <section className="container-custom py-12">
+          <ErrorState
+            title="Failed to load profile"
+            message={error}
+            onRetry={() => {
+              setError('');
+              setLoading(true);
+              window.location.reload();
+            }}
+          />
+        </section>
       </main>
     );
   }
@@ -194,13 +308,13 @@ export default function ProfilePage() {
       <section className="container-custom py-12">
 
         <div className="mb-8 flex items-center justify-between">
-          <Link href={`/${locale}`} className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[#09637e]">
+          <Link href={`/${locale}`} className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[#09637e] dark:text-gray-400 dark:hover:text-[#088395]">
             <ArrowLeft size={16} />
             {common('back')}
           </Link>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-500 transition hover:bg-red-50"
+            className="flex items-center gap-2 rounded-xl border border-red-200 dark:border-red-800 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-red-500 dark:text-red-400 transition hover:bg-red-50 dark:hover:bg-red-900/20"
           >
             <LogOut size={15} />
             {t('signOut')}
@@ -211,11 +325,11 @@ export default function ProfilePage() {
 
           <div className="mb-8 flex flex-col items-center text-center">
             <div className="relative mb-4">
-              <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-[#d1eef2] bg-[#d1eef2] overflow-hidden">
+              <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-[#d1eef2] dark:border-gray-700 bg-[#d1eef2] dark:bg-gray-700 overflow-hidden">
                 {getAvatar() ? (
                   <Image src={getAvatar()!} alt="Avatar" width={112} height={112} className="h-full w-full object-cover" />
                 ) : (
-                  <User size={48} className="text-[#09637e]" />
+                  <User size={48} className="text-[#09637e] dark:text-[#088395]" />
                 )}
               </div>
               {editMode && (
@@ -223,7 +337,7 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-[#09637e] text-white shadow-md"
+                    className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-[#09637e] dark:bg-[#088395] text-white shadow-md"
                   >
                     {uploadingAvatar ? (
                       <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -242,20 +356,20 @@ export default function ProfilePage() {
               )}
             </div>
 
-            <h1 className="text-2xl font-extrabold text-[#09637e]">
+            <h1 className="text-2xl font-extrabold text-[#09637e] dark:text-white">
               {profileData.firstName && profileData.lastName
                 ? `${profileData.firstName} ${profileData.lastName}`
                 : t('myProfile')}
             </h1>
             {profileData.title && (
-              <p className="mt-1 text-sm font-medium text-[#088395]">{profileData.title}</p>
+              <p className="mt-1 text-sm font-medium text-[#088395] dark:text-[#088395]">{profileData.title}</p>
             )}
-            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{email}</p>
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)] dark:text-gray-400">{email}</p>
 
             {!editMode && (
               <button
                 onClick={() => setEditMode(true)}
-                className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[#d1eef2] bg-white px-4 py-2 text-sm font-medium text-[#09637e] transition hover:bg-[#d1eef2]"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-[#09637e] dark:text-[#088395] transition hover:bg-[#d1eef2] dark:hover:bg-gray-700"
               >
                 <Pencil size={14} />
                 {t('editProfile')}
@@ -264,26 +378,26 @@ export default function ProfilePage() {
           </div>
 
           {success && (
-            <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600">
+            <div className="mb-4 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 px-4 py-3 text-sm text-green-600 dark:text-green-400">
               {t('saveSuccess')}
             </div>
           )}
 
-          {error && (
-            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error && editMode && (
+            <div className="mb-4 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-600 dark:text-red-400">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl border border-[#d1eef2] bg-white p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 p-8">
 
-            <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
+            <p className="mb-4 border-b border-[#d1eef2] dark:border-gray-700 pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395] dark:text-[#088395]">
               {t('basicInfo')}
             </p>
 
             <div className="mb-6 grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('firstName')} <span className="text-red-500">*</span></label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">{t('firstName')} <span className="text-red-500">*</span></label>
                 {editMode ? (
                   <>
                     <input type="text" placeholder="Fatema" {...register('firstName')} className={inputClass} />
@@ -295,7 +409,7 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('lastName')} <span className="text-red-500">*</span></label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">{t('lastName')} <span className="text-red-500">*</span></label>
                 {editMode ? (
                   <>
                     <input type="text" placeholder="Ahmadi" {...register('lastName')} className={inputClass} />
@@ -307,7 +421,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('dob')}</label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">{t('dob')}</label>
                 {editMode ? (
                   <div className="grid grid-cols-3 gap-2">
                     <input type="number" placeholder={t('day')} min="1" max="31" {...register('birthDay')} className={inputClass} />
@@ -329,7 +443,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('gender')}</label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">{t('gender')}</label>
                 {editMode ? (
                   <select {...register('gender')} className={inputClass}>
                     <option value="PreferNotToSay">{t('preferNot')}</option>
@@ -344,13 +458,13 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
+            <p className="mb-4 border-b border-[#d1eef2] dark:border-gray-700 pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395] dark:text-[#088395]">
               {t('professionalInfo')}
             </p>
 
             <div className="mb-6 grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('title')}</label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">{t('title')}</label>
                 {editMode ? (
                   <input type="text" placeholder={t('titlePlaceholder')} {...register('title')} className={inputClass} />
                 ) : (
@@ -359,7 +473,7 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('job')}</label>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">{t('job')}</label>
                 {editMode ? (
                   <input type="text" placeholder={t('jobPlaceholder')} {...register('job')} className={inputClass} />
                 ) : (
@@ -368,14 +482,14 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <p className="mb-4 border-b border-[#d1eef2] pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395]">
+            <p className="mb-4 border-b border-[#d1eef2] dark:border-gray-700 pb-2 text-xs font-semibold uppercase tracking-widest text-[#088395] dark:text-[#088395]">
               {t('about')}
             </p>
 
             <div className="mb-6 flex flex-col gap-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  {t('bio')} <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">({t('bioHint')})</span>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">
+                  {t('bio')} <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)] dark:text-gray-400">({t('bioHint')})</span>
                 </label>
                 {editMode ? (
                   <>
@@ -388,8 +502,8 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-[#374151]">
-                  {t('aboutLabel')} <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)]">({t('aboutHint')})</span>
+                <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">
+                  {t('aboutLabel')} <span className="ml-1 text-xs font-normal text-[var(--color-text-secondary)] dark:text-gray-400">({t('aboutHint')})</span>
                 </label>
                 {editMode ? (
                   <>
@@ -407,7 +521,7 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setEditMode(false)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[#d1eef2] bg-white px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-2.5 text-sm font-semibold text-[#09637e] dark:text-[#088395] transition hover:bg-[#d1eef2] dark:hover:bg-gray-700"
                 >
                   <X size={15} />
                   {common('cancel')}
@@ -415,7 +529,7 @@ export default function ProfilePage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#09637e] dark:bg-[#088395] px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
                 >
                   {saving ? (
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

@@ -12,45 +12,7 @@ import OpportunityCard from './components/OpportunityCard';
 import { useOpportunities } from '@/context/OpportunitiesContext';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingState } from '@/components/ui/LoadingState';
-
-// لیست کامل ولایات افغانستان
-const AFGHAN_PROVINCES = [
-  'All',
-  'Badakhshan',
-  'Badghis',
-  'Baghlan',
-  'Balkh',
-  'Bamyan',
-  'Daykundi',
-  'Farah',
-  'Faryab',
-  'Ghazni',
-  'Ghor',
-  'Helmand',
-  'Herat',
-  'Jowzjan',
-  'Kabul',
-  'Kandahar',
-  'Kapisa',
-  'Khost',
-  'Kunar',
-  'Kunduz',
-  'Laghman',
-  'Logar',
-  'Nangarhar',
-  'Nimroz',
-  'Nuristan',
-  'Paktia',
-  'Paktika',
-  'Panjshir',
-  'Parwan',
-  'Samangan',
-  'Sare Pol',
-  'Takhar',
-  'Uruzgan',
-  'Wardak',
-  'Zabul',
-];
+import { AFGHAN_PROVINCES } from '@/constants/provinces';
 
 export default function OpportunitiesPage() {
   const [search, setSearch] = useState('');
