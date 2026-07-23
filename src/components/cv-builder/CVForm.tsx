@@ -98,7 +98,6 @@ export function CVForm({ data, onChange }: CVFormProps) {
 
   return (
     <div className="space-y-6">
-      {/* Section Tabs */}
       <div className="flex gap-2 flex-wrap">
         {sections.map((section) => (
           <button
@@ -115,7 +114,6 @@ export function CVForm({ data, onChange }: CVFormProps) {
         ))}
       </div>
 
-      {/* Personal Info */}
       {activeSection === 'personal' && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -229,7 +227,6 @@ export function CVForm({ data, onChange }: CVFormProps) {
         </motion.div>
       )}
 
-      {/* Skills */}
       {activeSection === 'skills' && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -261,7 +258,6 @@ export function CVForm({ data, onChange }: CVFormProps) {
         </motion.div>
       )}
 
-      {/* Experience */}
       {activeSection === 'experience' && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -365,7 +361,6 @@ export function CVForm({ data, onChange }: CVFormProps) {
         </motion.div>
       )}
 
-      {/* Education */}
       {activeSection === 'education' && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}

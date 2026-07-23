@@ -46,9 +46,9 @@ export function CVPreview({ data }: CVPreviewProps) {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-[#09637e]">{t('preview')}</h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -59,10 +59,9 @@ export function CVPreview({ data }: CVPreviewProps) {
             {downloading ? (
               <div className="h-3 w-3 sm:h-4 sm:w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
-              <Download size={14} className="sm:size-16" />
+              <Download size={14} />
             )}
-            <span className="hidden xs:inline">{t('download')}</span>
-            <span className="xs:hidden">PDF</span>
+            {t('download')}
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -70,8 +69,8 @@ export function CVPreview({ data }: CVPreviewProps) {
             onClick={() => setShowPreview(!showPreview)}
             className="rounded-xl border border-[#d1eef2] bg-white px-3 py-1.5 text-xs sm:text-sm font-medium text-[#09637e] transition hover:bg-[#d1eef2] flex items-center gap-1.5"
           >
-            {showPreview ? <EyeOff size={14} className="sm:size-16" /> : <Eye size={14} className="sm:size-16" />}
-            <span className="hidden xs:inline">{showPreview ? 'Hide' : 'Show'}</span>
+            {showPreview ? <EyeOff size={14} /> : <Eye size={14} />}
+            {showPreview ? 'Hide' : 'Show'}
           </motion.button>
         </div>
       </div>

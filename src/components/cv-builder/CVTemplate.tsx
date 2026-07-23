@@ -1,6 +1,6 @@
 'use client';
 
-import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 
 Font.register({
   family: 'Roboto',
@@ -157,7 +157,6 @@ export function CVTemplate({ data }: CVTemplateProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.name}>{fullName}</Text>
           {data.personal.title && <Text style={styles.title}>{data.personal.title}</Text>}
@@ -166,16 +165,8 @@ export function CVTemplate({ data }: CVTemplateProps) {
             {data.personal.phone && <Text>📱 {data.personal.phone}</Text>}
             {data.personal.address && <Text>📍 {data.personal.address}</Text>}
           </View>
-          {(data.personal.website || data.personal.linkedin || data.personal.github) && (
-            <View style={[styles.contactRow, { marginTop: 4 }]}>
-              {data.personal.website && <Text>🌐 {data.personal.website}</Text>}
-              {data.personal.linkedin && <Text>🔗 {data.personal.linkedin}</Text>}
-              {data.personal.github && <Text>🐙 {data.personal.github}</Text>}
-            </View>
-          )}
         </View>
 
-        {/* Summary */}
         {data.summary && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Professional Summary</Text>
@@ -183,7 +174,6 @@ export function CVTemplate({ data }: CVTemplateProps) {
           </View>
         )}
 
-        {/* Skills */}
         {data.skills.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Skills</Text>
@@ -197,7 +187,6 @@ export function CVTemplate({ data }: CVTemplateProps) {
           </View>
         )}
 
-        {/* Experience */}
         {data.experience.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Experience</Text>
@@ -218,7 +207,6 @@ export function CVTemplate({ data }: CVTemplateProps) {
           </View>
         )}
 
-        {/* Education */}
         {data.education.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Education</Text>
@@ -236,18 +224,6 @@ export function CVTemplate({ data }: CVTemplateProps) {
                 {edu.field && <Text style={styles.bullet}>• {edu.field}</Text>}
                 {edu.description && <Text style={styles.bullet}>• {edu.description}</Text>}
               </View>
-            ))}
-          </View>
-        )}
-
-        {/* Languages */}
-        {data.languages.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Languages</Text>
-            {data.languages.map((lang, i) => (
-              <Text key={i} style={styles.bullet}>
-                {lang.name} — {lang.level}
-              </Text>
             ))}
           </View>
         )}

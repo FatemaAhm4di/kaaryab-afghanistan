@@ -61,7 +61,6 @@ export default function CVBuilderPage() {
   return (
     <main className="min-h-screen bg-[var(--color-background)] py-4 sm:py-10" dir={isRtl ? 'rtl' : 'ltr'}>
       <section className="container-custom">
-        {/* Back Button */}
         <MotionWrapper delay={0.1}>
           <Link 
             href={`/${locale}`} 
@@ -87,14 +86,12 @@ export default function CVBuilderPage() {
         </MotionWrapper>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Form */}
           <MotionWrapper delay={0.2}>
             <div className="rounded-2xl border border-[#d1eef2] bg-white p-4 sm:p-6 max-h-[600px] sm:max-h-[800px] overflow-y-auto">
               <CVForm data={cvData} onChange={updateCVData} />
             </div>
           </MotionWrapper>
 
-          {/* Preview */}
           <MotionWrapper delay={0.3}>
             <div className="rounded-2xl border border-[#d1eef2] bg-white p-4 sm:p-6 h-[600px] sm:h-[800px]">
               <CVPreview data={cvData} />
