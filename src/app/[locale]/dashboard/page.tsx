@@ -16,6 +16,8 @@ import {
   Clock,
   TrendingUp
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import { opportunities } from '@/features/opportunities/data';
 import { MotionWrapper, MotionCard, MotionStagger } from '@/components/ui/MotionWrapper';
 import { motion } from 'framer-motion';
@@ -33,6 +35,13 @@ const categoryData = [
   {label: 'Remote', value: 14, max: 120, color: '#10b981'},
   {label: 'Training', value: 6, max: 120, color: '#f43f5e'},
 ];
+
+// Map برای تبدیل نام‌های نوع به کلیدهای ترجمه
+const typeKeys: Record<string, string> = {
+  'Remote': 'remote',
+  'On-site': 'onSite',
+  'Hybrid': 'hybrid',
+};
 
 function useCountUp(target: number, duration = 1500) {
   const [count, setCount] = useState(0);
@@ -61,6 +70,7 @@ function StatCard({
   num,
   label,
   change,
+  changeLabel,
   iconBg,
   iconColor,
   delay,
@@ -69,6 +79,7 @@ function StatCard({
   num: number;
   label: string;
   change: string;
+  changeLabel: string;
   iconBg: string;
   iconColor: string;
   delay: number;
@@ -95,7 +106,7 @@ function StatCard({
         <div className="mt-1 text-sm text-[var(--color-text-secondary)]">{label}</div>
         <div className="mt-2 flex items-center gap-1 text-xs font-medium text-emerald-600">
           <TrendingUp size={12} />
-          {change}
+          {change} {changeLabel}
         </div>
       </div>
     </MotionCard>
@@ -130,6 +141,11 @@ function BarRow({label, value, max, color, delay}: {label: string; value: number
 const now = Date.now();
 
 export default function DashboardPage() {
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'en';
+  const t = useTranslations('dashboard');
+  const common = useTranslations('common');
+
   const expiring = opportunities
     .map((o) => ({
       ...o,
@@ -180,16 +196,16 @@ export default function DashboardPage() {
               <div>
                 <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#a8d8df] bg-[#d1eef2] px-3 py-1 text-xs font-medium text-[#09637e]">
                   <LayoutGrid size={12} />
-                  Overview
+                  {t('overview')}
                 </div>
-                <h1 className="text-3xl font-extrabold text-[#09637e] md:text-4xl">Dashboard</h1>
+                <h1 className="text-3xl font-extrabold text-[#09637e] md:text-4xl">{t('title')}</h1>
                 <p className="mt-1 text-[var(--color-text-secondary)]">
-                  Overview of all opportunities on KaarYab
+                  {t('subtitle')}
                 </p>
               </div>
               <div className="hidden items-center gap-2 rounded-xl border border-[#d1eef2] bg-white px-4 py-2 text-sm text-[var(--color-text-secondary)] md:flex">
                 <Clock size={14} />
-                Updated today
+                {t('updatedToday')}
               </div>
             </div>
           </MotionWrapper>
@@ -199,10 +215,46 @@ export default function DashboardPage() {
 
           {/* Stats */}
           <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-            <StatCard icon={LayoutGrid} num={120} label="Total opportunities" change="+12 this month" iconBg="#d1eef2" iconColor="#09637e" delay={100} />
-            <StatCard icon={Briefcase} num={45} label="Jobs" change="+5 this week" iconBg="#ede9fe" iconColor="#7c3aed" delay={200} />
-            <StatCard icon={GraduationCap} num={28} label="Scholarships" change="+3 this week" iconBg="#fef3c7" iconColor="#92400e" delay={300} />
-            <StatCard icon={Globe} num={14} label="Remote" change="+2 this week" iconBg="#d1fae5" iconColor="#065f46" delay={400} />
+            <StatCard 
+              icon={LayoutGrid} 
+              num={120} 
+              label={t('total')} 
+              change="+12" 
+              changeLabel={t('thisMonth')}
+              iconBg="#d1eef2" 
+              iconColor="#09637e" 
+              delay={100} 
+            />
+            <StatCard 
+              icon={Briefcase} 
+              num={45} 
+              label={t('jobs')} 
+              change="+5" 
+              changeLabel={t('thisWeek')}
+              iconBg="#ede9fe" 
+              iconColor="#7c3aed" 
+              delay={200} 
+            />
+            <StatCard 
+              icon={GraduationCap} 
+              num={28} 
+              label={t('scholarships')} 
+              change="+3" 
+              changeLabel={t('thisWeek')}
+              iconBg="#fef3c7" 
+              iconColor="#92400e" 
+              delay={300} 
+            />
+            <StatCard 
+              icon={Globe} 
+              num={14} 
+              label={t('remote')} 
+              change="+2" 
+              changeLabel={t('thisWeek')}
+              iconBg="#d1fae5" 
+              iconColor="#065f46" 
+              delay={400} 
+            />
           </div>
 
           {/* Charts row */}
@@ -212,8 +264,8 @@ export default function DashboardPage() {
             <MotionWrapper delay={0.2}>
               <div className="rounded-2xl border border-[#d1eef2] bg-white p-6">
                 <div className="mb-5 flex items-center justify-between">
-                  <h2 className="font-semibold text-[#09637e]">Opportunities by category</h2>
-                  <span className="text-xs text-[var(--color-text-secondary)]">This month</span>
+                  <h2 className="font-semibold text-[#09637e]">{t('categoryChart')}</h2>
+                  <span className="text-xs text-[var(--color-text-secondary)]">{t('thisMonth')}</span>
                 </div>
                 <div className="flex flex-col gap-4">
                   {categoryData.map((item, i) => (
@@ -226,7 +278,7 @@ export default function DashboardPage() {
             {/* Donut chart */}
             <MotionWrapper delay={0.3}>
               <div className="rounded-2xl border border-[#d1eef2] bg-white p-6">
-                <h2 className="mb-4 font-semibold text-[#09637e]">Type distribution</h2>
+                <h2 className="mb-4 font-semibold text-[#09637e]">{t('typeChart')}</h2>
                 <ResponsiveContainer width="100%" height={160}>
                   <PieChart>
                     <Pie
@@ -251,7 +303,7 @@ export default function DashboardPage() {
                   {typeData.map((item) => (
                     <div key={item.name} className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
                       <div className="h-2.5 w-2.5 rounded-full" style={{background: item.color}} />
-                      {item.name} ({item.value}%)
+                      {common(typeKeys[item.name] || item.name.toLowerCase())} ({item.value}%)
                     </div>
                   ))}
                 </div>
@@ -266,8 +318,8 @@ export default function DashboardPage() {
             <MotionWrapper delay={0.4}>
               <div className="rounded-2xl border border-[#d1eef2] bg-white p-6">
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="font-semibold text-[#09637e]">Recent submissions</h2>
-                  <span className="text-xs text-[var(--color-text-secondary)]">Latest 5</span>
+                  <h2 className="font-semibold text-[#09637e]">{t('recent')}</h2>
+                  <span className="text-xs text-[var(--color-text-secondary)]">{t('latest5')}</span>
                 </div>
                 <div className="flex flex-col">
                   {recent.map((o, index) => (
@@ -297,12 +349,12 @@ export default function DashboardPage() {
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="flex items-center gap-2 font-semibold text-orange-700">
                     <Clock size={15} />
-                    Expiring soon
+                    {t('expiringSoon')}
                   </h2>
-                  <span className="text-xs text-[var(--color-text-secondary)]">Next 30 days</span>
+                  <span className="text-xs text-[var(--color-text-secondary)]">{t('next30Days')}</span>
                 </div>
                 {expiring.length === 0 ? (
-                  <p className="text-sm text-[var(--color-text-secondary)]">No opportunities expiring soon.</p>
+                  <p className="text-sm text-[var(--color-text-secondary)]">{t('noExpiring')}</p>
                 ) : (
                   <div className="flex flex-col">
                     {expiring.map((o, index) => (
@@ -318,7 +370,7 @@ export default function DashboardPage() {
                           <div className="mt-0.5 text-xs text-[var(--color-text-secondary)]">{o.organization}</div>
                         </div>
                         <span className="rounded-full border border-orange-200 bg-white px-2.5 py-1 text-xs font-semibold text-orange-600">
-                          {o.daysLeft === 0 ? 'Today' : `${o.daysLeft}d left`}
+                          {o.daysLeft === 0 ? t('today') : `${o.daysLeft}d ${t('left')}`}
                         </span>
                       </motion.div>
                     ))}

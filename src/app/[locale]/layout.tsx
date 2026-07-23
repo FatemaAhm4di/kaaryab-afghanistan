@@ -56,12 +56,17 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
+  const isRtl = locale === 'fa' || locale === 'ps';
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      <Navbar />
-      <main className="flex-1">{children}</main>
-      <Footer />
-    </NextIntlClientProvider>
+    <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} suppressHydrationWarning>
+      <body className="bg-[var(--color-background)] antialiased min-h-screen flex flex-col" suppressHydrationWarning>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 }

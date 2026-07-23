@@ -142,7 +142,8 @@
     "next30Days": "Next 30 days",
     "noExpiring": "No opportunities expiring soon.",
     "today": "Today",
-    "left": "left"
+    "left": "left",
+    "thisWeek": "this week"
   },
   "profile": {
     "myProfile": "My Profile",
