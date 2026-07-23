@@ -27,24 +27,52 @@ const categoryColors: Record<string, { bg: string; text: string; darkBg: string;
 function DeadlineCountdown({ deadline }: { deadline: string }) {
   const [timeLeft, setTimeLeft] = useState('');
   const [isExpiringSoon, setIsExpiringSoon] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
     const calc = () => {
-      const diff = new Date(deadline).getTime() - Date.now();
-      if (diff <= 0) { setTimeLeft('Expired'); return; }
+      const now = Date.now();
+      const diff = new Date(deadline).getTime() - now;
+      
+      if (diff <= 0) {
+        setTimeLeft('Expired');
+        setIsExpired(true);
+        setIsExpiringSoon(false);
+        return;
+      }
+      
       const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      setIsExpired(false);
       setIsExpiringSoon(days <= 7);
-      setTimeLeft(days === 1 ? '1 day left' : `${days} days left`);
+      
+      if (days <= 7) {
+        if (days === 0) {
+          setTimeLeft(`${hours}h ${minutes}m left`);
+        } else if (days === 1) {
+          setTimeLeft(`1 day ${hours}h left`);
+        } else {
+          setTimeLeft(`${days} days ${hours}h left`);
+        }
+      } else {
+        setTimeLeft(`${days} days left`);
+      }
     };
+    
     calc();
     const interval = setInterval(calc, 60000);
     return () => clearInterval(interval);
   }, [deadline]);
 
   return (
-    <span className={`text-xs font-medium ${isExpiringSoon ? 'text-red-500' : 'text-gray-500'}`}>
-      {isExpiringSoon && timeLeft !== 'Expired' && (
+    <span className={`text-xs font-medium ${isExpired ? 'text-red-600' : isExpiringSoon ? 'text-red-500 animate-pulse' : 'text-gray-500'}`}>
+      {isExpiringSoon && !isExpired && (
         <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+      )}
+      {isExpired && (
+        <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-red-600" />
       )}
       {timeLeft}
     </span>

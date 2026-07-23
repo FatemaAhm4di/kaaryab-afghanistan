@@ -10,6 +10,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import OpportunityCard from './components/OpportunityCard';
 import { useOpportunities } from '@/context/OpportunitiesContext';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { LoadingState } from '@/components/ui/LoadingState';
 
 // لیست کامل ولایات افغانستان
 const AFGHAN_PROVINCES = [
@@ -116,6 +118,17 @@ export default function OpportunitiesPage() {
     });
   }, [search, category, location, type, deadlineFilter, opportunities]);
 
+  // Loading State
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[var(--color-background)] py-10">
+        <section className="container-custom">
+          <LoadingState message={common('loading')} />
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[var(--color-background)] py-10">
       <section className="container-custom">
@@ -140,7 +153,7 @@ export default function OpportunitiesPage() {
               <h1 className="text-3xl font-bold text-[var(--color-primary-dark)] md:text-4xl">
                 {t('title')}
               </h1>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-gray-600 dark:text-gray-400">
                 {t('subtitle')}
               </p>
             </div>
@@ -166,12 +179,12 @@ export default function OpportunitiesPage() {
             placeholder={t('search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="rounded-xl border border-[#d1eef2] bg-white px-4 py-3 outline-none transition focus:border-[#09637e]"
+            className="rounded-xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 px-4 py-3 outline-none transition focus:border-[#09637e] dark:focus:border-[#088395]"
           />
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="rounded-xl border border-[#d1eef2] bg-white px-4 py-3 outline-none transition focus:border-[#09637e]"
+            className="rounded-xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-3 outline-none transition focus:border-[#09637e] dark:focus:border-[#088395]"
           >
             <option value="All">{t('allCategories')}</option>
             <option value="Job">{common('job')}</option>
@@ -186,12 +199,12 @@ export default function OpportunitiesPage() {
 
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-[#09637e] transition hover:text-[#075a6b]"
+          className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-[#09637e] dark:text-[#088395] transition hover:text-[#075a6b]"
         >
           {showFilters ? t('hideFilters') : t('showMore')}
           <span className="text-xs">▼</span>
           {hasActiveFilters && (
-            <span className="ml-1 rounded-full bg-[#09637e] px-2 py-0.5 text-xs text-white">
+            <span className="ml-1 rounded-full bg-[#09637e] dark:bg-[#088395] px-2 py-0.5 text-xs text-white">
               {filteredOpportunities.length}
             </span>
           )}
@@ -206,13 +219,13 @@ export default function OpportunitiesPage() {
               transition={{ duration: 0.3, ease: 'easeInOut' }}
               className="overflow-hidden mb-6"
             >
-              <div className="grid gap-4 rounded-2xl border border-[#d1eef2] bg-white p-4 md:grid-cols-3">
+              <div className="grid gap-4 rounded-2xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:grid-cols-3">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('location')}</label>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">{t('location')}</label>
                   <select
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 outline-none transition focus:border-[#09637e]"
+                    className="w-full rounded-xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2.5 outline-none transition focus:border-[#09637e] dark:focus:border-[#088395]"
                   >
                     {uniqueLocations.map((loc) => (
                       <option key={loc} value={loc}>
@@ -223,11 +236,11 @@ export default function OpportunitiesPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('type')}</label>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">{t('type')}</label>
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value)}
-                    className="w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 outline-none transition focus:border-[#09637e]"
+                    className="w-full rounded-xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2.5 outline-none transition focus:border-[#09637e] dark:focus:border-[#088395]"
                   >
                     <option value="All">{common('allTypes')}</option>
                     <option value="Remote">{common('remote')}</option>
@@ -237,11 +250,11 @@ export default function OpportunitiesPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">{t('deadline')}</label>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151] dark:text-gray-300">{t('deadline')}</label>
                   <select
                     value={deadlineFilter}
                     onChange={(e) => setDeadlineFilter(e.target.value)}
-                    className="w-full rounded-xl border border-[#d1eef2] bg-white px-4 py-2.5 outline-none transition focus:border-[#09637e]"
+                    className="w-full rounded-xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2.5 outline-none transition focus:border-[#09637e] dark:focus:border-[#088395]"
                   >
                     <option value="All">{t('allDeadlines')}</option>
                     <option value="This week">{t('thisWeek')}</option>
@@ -255,7 +268,7 @@ export default function OpportunitiesPage() {
                   <div className="md:col-span-3 flex justify-end">
                     <button
                       onClick={clearFilters}
-                      className="inline-flex items-center gap-1 text-sm text-[#09637e] transition hover:text-[#075a6b]"
+                      className="inline-flex items-center gap-1 text-sm text-[#09637e] dark:text-[#088395] transition hover:text-[#075a6b]"
                     >
                       <X size={16} />
                       {t('clearFilters')}
@@ -267,42 +280,16 @@ export default function OpportunitiesPage() {
           )}
         </AnimatePresence>
 
-        {loading ? (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="animate-pulse rounded-2xl border border-[#d1eef2] bg-white p-6">
-                <div className="mb-4 h-4 w-24 rounded bg-gray-200" />
-                <div className="mb-3 h-6 w-3/4 rounded bg-gray-200" />
-                <div className="mb-2 h-4 w-1/2 rounded bg-gray-200" />
-                <div className="mb-2 h-4 w-1/3 rounded bg-gray-200" />
-                <div className="h-4 w-1/4 rounded bg-gray-200" />
-              </div>
-            ))}
-          </div>
-        ) : filteredOpportunities.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center rounded-2xl border border-dashed border-[#a8d8df] p-10 text-center"
-          >
-            <Image
-              src="/illustrations/illustration-opportunities.svg"
-              alt="No opportunities found"
-              width={180}
-              height={140}
-              className="mb-4 opacity-70"
-            />
-            <h2 className="text-xl font-semibold text-[#09637e]">{t('noResults')}</h2>
-            <p className="mt-2 text-gray-600">{t('noResultsMessage')}</p>
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="mt-4 rounded-xl bg-[#09637e] px-6 py-2 text-sm text-white transition hover:bg-[#075a6b]"
-              >
-                {t('clearFilters')}
-              </button>
-            )}
-          </motion.div>
+        {filteredOpportunities.length === 0 ? (
+          <EmptyState
+            image="/illustrations/illustration-opportunities.svg"
+            title={t('noResults')}
+            description={t('noResultsMessage')}
+            action={hasActiveFilters ? {
+              label: t('clearFilters'),
+              onClick: clearFilters
+            } : undefined}
+          />
         ) : (
           <motion.div
             initial={{ opacity: 0 }}
@@ -328,7 +315,7 @@ export default function OpportunitiesPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="mt-6 text-center text-sm text-gray-500"
+            className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400"
           >
             {t('showing')} {filteredOpportunities.length} {common('of')} {opportunities.length} {t('opportunities')}
           </motion.p>

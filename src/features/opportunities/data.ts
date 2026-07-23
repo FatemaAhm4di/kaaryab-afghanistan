@@ -1,4 +1,4 @@
-import {Opportunity} from './types';
+import { Opportunity } from './types';
 
 export const opportunities: Opportunity[] = [
   {
@@ -8,11 +8,12 @@ export const opportunities: Opportunity[] = [
     category: 'Internship',
     location: 'Kabul',
     type: 'Remote',
-    deadline: '2026-07-10T00:00:00.000Z',
+    deadline: '2026-07-30T00:00:00.000Z',
     description: 'Beginner friendly internship for React developers.',
     requirements: ['HTML', 'CSS', 'React'],
     applyLink: '#',
-    tags: ['React', 'Frontend']
+    tags: ['React', 'Frontend'],
+    featured: true,
   },
   {
     id: '2',
@@ -21,11 +22,12 @@ export const opportunities: Opportunity[] = [
     category: 'Remote',
     location: 'Online',
     type: 'Remote',
-    deadline: '2026-07-10T00:00:00.000Z',
+    deadline: '2026-08-20T00:00:00.000Z',
     description: 'Work remotely as UI designer.',
     requirements: ['Figma', 'UI Design'],
     applyLink: '#',
-    tags: ['Design', 'Figma']
+    tags: ['Design', 'Figma'],
+    featured: true,
   },
   {
     id: '3',
@@ -34,11 +36,12 @@ export const opportunities: Opportunity[] = [
     category: 'Scholarship',
     location: 'Online',
     type: 'Remote',
-    deadline: '2026-07-20T00:00:00.000Z',
+    deadline: '2026-08-10T00:00:00.000Z',
     description: 'Scholarship for women who want to study technology online.',
     requirements: ['Basic English', 'Motivation letter'],
     applyLink: '#',
-    tags: ['Scholarship', 'Women', 'Online']
+    tags: ['Scholarship', 'Women', 'Online'],
+    featured: true,
   },
   {
     id: '4',
@@ -51,7 +54,7 @@ export const opportunities: Opportunity[] = [
     description: 'Backend developer position at a growing startup in Herat.',
     requirements: ['Node.js', 'PostgreSQL', 'REST API'],
     applyLink: '#',
-    tags: ['Backend', 'Node.js']
+    tags: ['Backend', 'Node.js'],
   },
   {
     id: '5',
@@ -64,7 +67,7 @@ export const opportunities: Opportunity[] = [
     description: 'Data entry and management role at UN Afghanistan office.',
     requirements: ['MS Office', 'Attention to detail'],
     applyLink: '#',
-    tags: ['Data', 'UN']
+    tags: ['Data', 'UN'],
   },
   {
     id: '6',
@@ -73,11 +76,12 @@ export const opportunities: Opportunity[] = [
     category: 'Job',
     location: 'Online',
     type: 'Remote',
-    deadline: '2026-07-08T00:00:00.000Z',
+    deadline: '2026-08-15T00:00:00.000Z',
     description: 'Remote React developer for NGO projects.',
     requirements: ['React', 'TypeScript', 'Git'],
     applyLink: '#',
-    tags: ['React', 'Remote']
+    tags: ['React', 'Remote'],
+    featured: true,
   },
   {
     id: '7',
@@ -86,11 +90,11 @@ export const opportunities: Opportunity[] = [
     category: 'Job',
     location: 'Kabul',
     type: 'Remote',
-    deadline: '2026-07-09T00:00:00.000Z',
+    deadline: '2026-07-29T00:00:00.000Z',
     description: 'UI/UX designer for digital products.',
     requirements: ['Figma', 'User Research', 'Prototyping'],
     applyLink: '#',
-    tags: ['Design', 'UX']
+    tags: ['Design', 'UX'],
   },
   {
     id: '8',
@@ -103,6 +107,6 @@ export const opportunities: Opportunity[] = [
     description: 'Learn digital marketing with a leading Afghan media company.',
     requirements: ['Social Media', 'Content Writing'],
     applyLink: '#',
-    tags: ['Marketing', 'Internship']
-  }
+    tags: ['Marketing', 'Internship'],
+  },
 ];

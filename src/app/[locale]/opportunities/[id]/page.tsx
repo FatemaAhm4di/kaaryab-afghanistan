@@ -6,6 +6,9 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, Briefcase, MapPin, Calendar, Tag } from 'lucide-react';
 import { MotionWrapper, MotionCard } from '@/components/ui/MotionWrapper';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { LoadingState } from '@/components/ui/LoadingState';
 
 type Opportunity = {
   id: string;
@@ -25,61 +28,28 @@ type Opportunity = {
 function OpportunitySkeleton() {
   return (
     <main className="container-custom py-10 animate-pulse">
-      <div className="h-5 w-32 rounded-lg bg-gray-200 mb-6" />
-      <div className="h-8 w-3/4 rounded-lg bg-gray-200 mb-2" />
-      <div className="h-5 w-1/2 rounded-lg bg-gray-200 mb-8" />
+      <div className="h-5 w-32 rounded-lg bg-gray-200 dark:bg-gray-700 mb-6" />
+      <div className="h-8 w-3/4 rounded-lg bg-gray-200 dark:bg-gray-700 mb-2" />
+      <div className="h-5 w-1/2 rounded-lg bg-gray-200 dark:bg-gray-700 mb-8" />
       <div className="flex flex-wrap gap-2 mb-8">
-        <div className="h-6 w-20 rounded-full bg-gray-200" />
-        <div className="h-6 w-28 rounded-full bg-gray-200" />
-        <div className="h-6 w-16 rounded-full bg-gray-200" />
+        <div className="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div className="h-6 w-28 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div className="h-6 w-16 rounded-full bg-gray-200 dark:bg-gray-700" />
       </div>
-      <div className="h-6 w-32 rounded-lg bg-gray-200 mb-3" />
-      <div className="h-24 w-full rounded-2xl bg-gray-200 mb-8" />
-      <div className="h-6 w-40 rounded-lg bg-gray-200 mb-3" />
+      <div className="h-6 w-32 rounded-lg bg-gray-200 dark:bg-gray-700 mb-3" />
+      <div className="h-24 w-full rounded-2xl bg-gray-200 dark:bg-gray-700 mb-8" />
+      <div className="h-6 w-40 rounded-lg bg-gray-200 dark:bg-gray-700 mb-3" />
       <div className="space-y-2">
-        <div className="h-4 w-full rounded-lg bg-gray-200" />
-        <div className="h-4 w-3/4 rounded-lg bg-gray-200" />
-        <div className="h-4 w-1/2 rounded-lg bg-gray-200" />
+        <div className="h-4 w-full rounded-lg bg-gray-200 dark:bg-gray-700" />
+        <div className="h-4 w-3/4 rounded-lg bg-gray-200 dark:bg-gray-700" />
+        <div className="h-4 w-1/2 rounded-lg bg-gray-200 dark:bg-gray-700" />
       </div>
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#d1eef2] bg-white p-6">
-        <div className="h-5 w-32 rounded-lg bg-gray-200" />
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+        <div className="h-5 w-32 rounded-lg bg-gray-200 dark:bg-gray-700" />
         <div className="flex gap-3">
-          <div className="h-10 w-28 rounded-xl bg-gray-200" />
-          <div className="h-10 w-20 rounded-xl bg-gray-200" />
+          <div className="h-10 w-28 rounded-xl bg-gray-200 dark:bg-gray-700" />
+          <div className="h-10 w-20 rounded-xl bg-gray-200 dark:bg-gray-700" />
         </div>
-      </div>
-    </main>
-  );
-}
-
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <main className="container-custom py-20">
-      <div className="mx-auto max-w-md text-center">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', damping: 20 }}
-          className="mb-6 text-6xl"
-        >
-          😕
-        </motion.div>
-        <h2 className="text-2xl font-bold text-[#09637e]">Something went wrong</h2>
-        <p className="mt-2 text-gray-600">{message}</p>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onRetry}
-          className="mt-6 rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]"
-        >
-          Try again
-        </motion.button>
-        <Link
-          href="/opportunities"
-          className="mt-4 block text-sm text-[#09637e] transition hover:text-[#075a6b]"
-        >
-          ← Back to opportunities
-        </Link>
       </div>
     </main>
   );
@@ -90,6 +60,8 @@ export default function OpportunityPage() {
   const router = useRouter();
   const locale = (params.locale as string) || 'fa';
   const id = params.id as string;
+  const t = useTranslations('details');
+  const common = useTranslations('common');
 
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
   const [loading, setLoading] = useState(true);
@@ -101,8 +73,8 @@ export default function OpportunityPage() {
     try {
       const res = await fetch(`/api/opportunities/${id}`);
       if (!res.ok) {
-        if (res.status === 404) setError('Opportunity not found');
-        else setError('Failed to load opportunity');
+        if (res.status === 404) setError(t('notFound'));
+        else setError(t('errorMessage'));
         return;
       }
       const data = await res.json();
@@ -119,11 +91,23 @@ export default function OpportunityPage() {
   }, [id]);
 
   if (loading) return <OpportunitySkeleton />;
-  if (error) return <ErrorState message={error} onRetry={fetchOpportunity} />;
+  
+  if (error) {
+    return (
+      <main className="container-custom py-20">
+        <ErrorState
+          title={t('error')}
+          message={error}
+          onRetry={fetchOpportunity}
+        />
+      </main>
+    );
+  }
+  
   if (!opportunity) {
     return (
       <main className="container-custom py-20">
-        <div className="mx-auto max-w-md text-center">
+        <div className="flex flex-col items-center justify-center text-center">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -132,10 +116,15 @@ export default function OpportunityPage() {
           >
             🔍
           </motion.div>
-          <h2 className="text-2xl font-bold text-[#09637e]">Opportunity not found</h2>
-          <p className="mt-2 text-gray-600">The opportunity you are looking for does not exist or has been removed.</p>
-          <Link href={`/${locale}/opportunities`} className="mt-6 inline-block rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]">
-            Browse opportunities
+          <h2 className="text-2xl font-bold text-[#09637e] dark:text-[#088395]">{t('notFound')}</h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            {t('notFoundMessage')}
+          </p>
+          <Link
+            href={`/${locale}/opportunities`}
+            className="mt-6 inline-block rounded-xl bg-[#09637e] dark:bg-[#088395] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]"
+          >
+            {t('browse')}
           </Link>
         </div>
       </main>
@@ -148,10 +137,10 @@ export default function OpportunityPage() {
       <MotionWrapper delay={0.1}>
         <button
           onClick={() => router.back()}
-          className="mb-6 inline-flex items-center gap-2 text-sm text-[#09637e] transition hover:text-[#075a6b]"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-[#09637e] dark:text-[#088395] transition hover:text-[#075a6b]"
         >
           <ArrowLeft size={16} />
-          Back
+          {common('back')}
         </button>
       </MotionWrapper>
 
@@ -160,8 +149,10 @@ export default function OpportunityPage() {
         <div className="mb-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-[#09637e] md:text-4xl">{opportunity.title}</h1>
-              <p className="mt-2 flex items-center gap-2 text-gray-600">
+              <h1 className="text-3xl font-bold text-[#09637e] dark:text-white md:text-4xl">
+                {opportunity.title}
+              </h1>
+              <p className="mt-2 flex items-center gap-2 text-gray-600 dark:text-gray-400">
                 <Briefcase size={16} />
                 {opportunity.organization}
                 <span className="mx-1">•</span>
@@ -169,7 +160,7 @@ export default function OpportunityPage() {
                 {opportunity.location}
               </p>
             </div>
-            <span className="rounded-full bg-[#d1eef2] px-4 py-1.5 text-sm font-medium text-[#09637e]">
+            <span className="rounded-full bg-[#d1eef2] dark:bg-gray-700 px-4 py-1.5 text-sm font-medium text-[#09637e] dark:text-[#088395]">
               {opportunity.category}
             </span>
           </div>
@@ -179,15 +170,15 @@ export default function OpportunityPage() {
       {/* Badges */}
       <MotionWrapper delay={0.3}>
         <div className="mb-8 flex flex-wrap gap-2">
-          <span className="rounded-full bg-[#ebf4f6] px-3 py-1 text-xs font-medium text-[#09637e]">
+          <span className="rounded-full bg-[#ebf4f6] dark:bg-gray-700 px-3 py-1 text-xs font-medium text-[#09637e] dark:text-[#088395]">
             {opportunity.type}
           </span>
-          <span className="rounded-full bg-[#ebf4f6] px-3 py-1 text-xs font-medium text-[#09637e]">
+          <span className="rounded-full bg-[#ebf4f6] dark:bg-gray-700 px-3 py-1 text-xs font-medium text-[#09637e] dark:text-[#088395]">
             <Calendar size={12} className="inline mr-1" />
             {new Date(opportunity.deadline).toLocaleDateString()}
           </span>
           {opportunity.tags?.map((tag) => (
-            <span key={tag} className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
+            <span key={tag} className="rounded-full bg-gray-100 dark:bg-gray-700 px-3 py-1 text-xs text-gray-600 dark:text-gray-400">
               <Tag size={10} className="inline mr-1" />
               {tag}
             </span>
@@ -198,10 +189,14 @@ export default function OpportunityPage() {
       {/* Description */}
       <MotionWrapper delay={0.4}>
         <section className="mb-8">
-          <h2 className="mb-3 text-xl font-semibold text-[#09637e]">Description</h2>
+          <h2 className="mb-3 text-xl font-semibold text-[#09637e] dark:text-white">
+            {t('description')}
+          </h2>
           <MotionCard>
-            <div className="rounded-2xl border border-[#d1eef2] bg-white p-6">
-              <p className="text-gray-700 leading-relaxed">{opportunity.description}</p>
+            <div className="rounded-2xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                {opportunity.description}
+              </p>
             </div>
           </MotionCard>
         </section>
@@ -210,10 +205,12 @@ export default function OpportunityPage() {
       {/* Requirements */}
       <MotionWrapper delay={0.5}>
         <section className="mb-8">
-          <h2 className="mb-3 text-xl font-semibold text-[#09637e]">Requirements</h2>
+          <h2 className="mb-3 text-xl font-semibold text-[#09637e] dark:text-white">
+            {t('requirements')}
+          </h2>
           <MotionCard>
-            <div className="rounded-2xl border border-[#d1eef2] bg-white p-6">
-              <ul className="list-disc pl-5 space-y-1.5 text-gray-700">
+            <div className="rounded-2xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+              <ul className="list-disc pl-5 space-y-1.5 text-gray-700 dark:text-gray-300">
                 {opportunity.requirements.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
@@ -225,10 +222,12 @@ export default function OpportunityPage() {
 
       {/* Apply Section */}
       <MotionWrapper delay={0.6}>
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#d1eef2] bg-white p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#d1eef2] dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
           <div>
-            <p className="text-sm text-gray-500">Ready to apply?</p>
-            <p className="font-medium text-[#09637e]">{opportunity.organization}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('ready')}</p>
+            <p className="font-medium text-[#09637e] dark:text-[#088395]">
+              {opportunity.organization}
+            </p>
           </div>
           <div className="flex gap-3">
             <motion.a
@@ -237,15 +236,15 @@ export default function OpportunityPage() {
               href={opportunity.applyLink}
               target="_blank"
               rel="noreferrer"
-              className="rounded-xl bg-[#09637e] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]"
+              className="rounded-xl bg-[#09637e] dark:bg-[#088395] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#075a6b]"
             >
-              Apply Now →
+              {t('apply')} →
             </motion.a>
             <Link
               href={`/${locale}/opportunities`}
-              className="rounded-xl border border-[#d1eef2] px-6 py-2.5 text-sm font-semibold text-[#09637e] transition hover:bg-[#d1eef2]"
+              className="rounded-xl border border-[#d1eef2] dark:border-gray-700 px-6 py-2.5 text-sm font-semibold text-[#09637e] dark:text-[#088395] transition hover:bg-[#d1eef2] dark:hover:bg-gray-700"
             >
-              Back
+              {common('back')}
             </Link>
           </div>
         </div>
